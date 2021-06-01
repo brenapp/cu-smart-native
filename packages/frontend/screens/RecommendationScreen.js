@@ -26,7 +26,7 @@ const RecommendationScreen = props => {
 
         // Actually set Title
         stackNavigator.setOptions({
-          title: "User Feedback",
+          title: "Recommendation",
         });
       }
     }, [props.navigation]),
