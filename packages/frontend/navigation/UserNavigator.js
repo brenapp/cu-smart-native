@@ -3,19 +3,30 @@ import { Platform, SafeAreaView, Button, View } from "react-native";
 
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 
-import UserFeedbackScreen from "../screens/UserFeedbackScreen";
-import HeatMapScreen from "../screens/HeatMapScreen";
-import RecommendationScreen from "../screens/RecommendationScreen";
+import UserFeedbackScreen, {screenOptions as userFeedbackScreenOptions}from "../screens/UserFeedbackScreen";
+import HeatMapScreen, {screenOptions as heatMapScreenOptions} from "../screens/HeatMapScreen";
+import RecommendationScreen, {screenOptions as recommendationScreenOptions} from "../screens/RecommendationScreen";
+import { HeaderBackButton } from "@react-navigation/stack";
 
-const UserNavigator = () => {
-  const Tab = createBottomTabNavigator();
+const UserNavigator = props => {
+  const BottomTab = createBottomTabNavigator();
+  React.useLayoutEffect(() => {
+    props.navigation.setOptions({
+      headerTitle: props.route.headerTitle,
+      headerRight: () => (
+        <HeaderBackButton
+          onPress={() => props.navigation.navigate('Room Selection')}
+        />
+      ),
+    });
+  }, [props.navigation]);
 
   return (
-    <Tab.Navigator>
-      <Tab.Screen name="UserFeedback" component={UserFeedbackScreen} />
-      <Tab.Screen name="HeatMap" component={HeatMapScreen} />
-      <Tab.Screen name="Recommendation" component={RecommendationScreen} />
-    </Tab.Navigator>
+    <BottomTab.Navigator  initialRouteName="Heat Map">
+      <BottomTab.Screen name="User Feedback" component={UserFeedbackScreen} options = {userFeedbackScreenOptions}/>
+      <BottomTab.Screen name="Heat Map" component={HeatMapScreen} options={heatMapScreenOptions}/>
+      <BottomTab.Screen name="Recommendation" component={RecommendationScreen} options={recommendationScreenOptions}/>
+    </BottomTab.Navigator>
   );
 };
 

@@ -12,7 +12,7 @@ import {
 
 const RoomSelectionScreen = props => {
   const clickButtionHandler = () => {
-    props.navigation.navigate('UserTab');
+    props.navigation.navigate('User Tab');
   };
 
   return (
