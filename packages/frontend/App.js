@@ -19,29 +19,6 @@ import {
 
 import AppNavigator from "./navigation/AppNavigator";
 
-// import { NavigationContainer } from '@react-navigation/native';
-// import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-//
-// import HeatMapScreen from "./screens/HeatMapScreen";
-//
-// function HomeScreen() {
-//   return (
-//     <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-//       <Text>Home!</Text>
-//     </View>
-//   );
-// }
-//
-// function SettingsScreen() {
-//   return (
-//     <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-//       <Text>Settings!</Text>
-//     </View>
-//   );
-// }
-//
-// const Tab = createBottomTabNavigator();
-
 const App = () => {
   return (
     <AppNavigator />
