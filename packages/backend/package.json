@@ -1,0 +1,27 @@
+{
+  "name": "cu-smart",
+  "version": "0.0.0",
+  "description": "Backend for the CU Smart App",
+  "main": "out/main.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/MayorMonty/cu-smart-backend.git"
+  },
+  "keywords": [
+    "cevac",
+    "cu-smart",
+    "backend"
+  ],
+  "author": "Brendan McGuire <bmmcgui@clemson.edu>",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/MayorMonty/cu-smart-backend/issues"
+  },
+  "homepage": "https://github.com/MayorMonty/cu-smart-backend#readme",
+  "devDependencies": {
+    "typescript": "^4.3.4"
+  }
+}
