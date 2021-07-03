@@ -54,12 +54,25 @@ const router = Router();
 
 router.post("/feedback", bodyParser.urlencoded({ extended: false }), bodyParser.json(), (req, res) => {
 
+    // Because this is an automated request (originating from a fetch in the client, redirecting to
+    // authentication doesn't make sense, so return an error when the user isn't authenticated, and
+    // allow the client to authenticate)
+    if (!req.isAuthenticated()) {
+        res.status(401).json({
+            "status": "error",
+            "error_message": "Unauthenticated"
+        })
+    }  
+
+
+    // Validate feedback against submission
     const valid = validate(req.body);
 
     if (valid) {
-        res.json({ "status": "ok", "feedback": req.body });
+        res.status(200).json({ "status": "ok" });
+    
     } else {
-        res.json({ "status": "error", "error_message": "Invalid feedback submission", "feedback": req.body });
+        res.status(400).json({ "status": "error", "error_message": "Invalid feedback submission" });
     };
 
 });
