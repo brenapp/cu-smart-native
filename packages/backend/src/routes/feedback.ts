@@ -61,20 +61,19 @@ router.post("/feedback", bodyParser.urlencoded({ extended: false }), bodyParser.
         res.status(401).json({
             "status": "error",
             "error_message": "Unauthenticated"
-        })
-    }  
-
-
-    // Validate feedback against submission
-    const valid = validate(req.body);
-
-    if (valid) {
-        res.status(200).json({ "status": "ok" });
-    
+        });
     } else {
-        res.status(400).json({ "status": "error", "error_message": "Invalid feedback submission" });
-    };
+        // Validate feedback against submission
+        const valid = validate(req.body);
 
+        if (valid) {
+            res.status(200).json({ "status": "ok" });
+
+        } else {
+            res.status(400).json({ "status": "error", "error_message": "Invalid feedback submission" });
+        };
+
+    }
 });
 
 
