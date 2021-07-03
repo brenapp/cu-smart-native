@@ -5,7 +5,9 @@
   "main": "out/main.js",
   "scripts": {
     "build": "npx tsc",
-    "run": "node out/main.js"
+    "run": "node out/main.js",
+    "dev": "npx nodemon",
+    "start": "npm run build && npm run run"
   },
   "repository": {
     "type": "git",
