@@ -1,5 +1,5 @@
 /**
- * Handles Single Sign through Clemson's System using SAML2 over Shibboleth, using passport and
+ * Handles Single Sign through Clemson"s System using SAML2 over Shibboleth, using passport and
  * passport-saml. Additionally provides a development login system using simple usernames and
  * passwords. This system is temporary until we can get the authentication system working!
  */
@@ -9,7 +9,7 @@ import { Strategy as SAMLStrategy } from "passport-saml"
 import { Strategy as LocalStrategy } from "passport-local"
 import * as bodyParser from "body-parser"
 import { Router } from "express"
-import { devCredentials } from "../config.json" 
+import { devCredentials } from "../config.json"
 
 passport.use("sso", new SAMLStrategy({
   path: "/auth/callback",
@@ -44,7 +44,10 @@ passport.use("local", new LocalStrategy((username, password, done) => {
 const router = Router();
 
 router.get("/auth", passport.authenticate("sso"));
-router.get("/auth/dev", passport.authenticate("local"))
+router.post("/auth/dev", passport.authenticate("local", {
+  successRedirect: "/",
+  failureRedirect: "/failure",
+}))
 
 router.post(
   "/auth/callback",
