@@ -1,5 +1,6 @@
 import auth from "./auth"
 import feedback from "./feedback"
+import data from "./data"
 
 import app from "../main"
 import winston from "winston"
@@ -20,12 +21,13 @@ app.use(expressWinston.logger({
 // Routers
 app.use(auth);
 app.use(feedback);
+app.use(data);
 
 // Default handlers
 app.use((req, res) => {
     res.status(404).json({
         "status": "error",
-        "error_mesage": "Could not find route specified"
+        "error_message": "Could not find route specified"
     });
 });
 

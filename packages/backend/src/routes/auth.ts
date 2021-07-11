@@ -21,8 +21,6 @@ passport.use("sso", new SAMLStrategy({
   done(null);
 }))
 
-
-
 passport.use("local", new LocalStrategy((username, password, done) => {
 
   const usernames = Object.keys(devCredentials);
