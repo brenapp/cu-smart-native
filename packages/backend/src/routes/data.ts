@@ -230,7 +230,7 @@ router.get('/api/XREF', (req, res) => {
         });
     } else {
 
-        pool.query(generatePXrefQuery(building, sensor), function (err, result) {
+        pool.query(generateXrefQuery(building, sensor), function (err, result) {
             if (err) {
                 res.status(500).json({
                     "status": "err",
@@ -267,7 +267,7 @@ router.get('/api/PXREF', (req, res) => {
         });
     } else {
 
-        pool.query(generateXrefQuery(building, sensor), function (err, result) {
+        pool.query(generatePXrefQuery(building, sensor), function (err, result) {
             if (err) {
                 res.status(500).json({
                     "status": "err",
