@@ -8,6 +8,18 @@ import { mssql as config } from "../config.json"
 import { Router } from "express"
 import mssql from "mssql"
 
+const BUILDINGS = [
+    "WATT",
+    "COOPER",
+    "ASC",
+    "SIKES",
+    "FIKE"
+];
+
+const SENSORS = [
+    "TEMP",
+    "CO2"
+];
 
 // Connect to database
 const pool = new mssql.ConnectionPool(config);
@@ -18,7 +30,6 @@ pool.connect(err => {
         console.log("Connect to SQL server")
     }
 });
-
 
 const router = Router();
 
@@ -33,59 +44,6 @@ interface LiveEntry {
     UTCDateTime: string,
     ETDateTime: string,
     ActualValue: number
-}
-
-
-/**
- * Select the top 96 records (24 * 4)
- */
-function generateHistoryQuery(building: string, sensor: string, id: string) {
-    building = building.toUpperCase();
-    sensor = sensor.toUpperCase();
-    console.log(building, sensor);
-    const query = 'SELECT TOP (96)\n' +
-        '      [ETDateTime] as [Time]\n' +
-        '      ,[ActualValue] as [Value]\n' +
-        `  FROM [WFIC-CEVAC].[dbo].[CEVAC_${building}_${sensor}_HIST_CACHE] \n` +
-        `  WHERE [PointSliceID] = ${id}` +
-        '  ORDER BY [Time] DESC ';
-
-    return query;
-}
-/**
- * Generate live query
- */
-function generateLiveQuery(building: string, sensor: string) {
-    building = building.toUpperCase();
-    sensor = sensor.toUpperCase();
-    const query = 'SELECT *\n' +
-        `  FROM [WFIC-CEVAC].[dbo].[CEVAC_${building}_${sensor}_LIVE] \n`;
-    return query;
-}
-
-function generatePXrefQuery(building: string, sensor: string) {
-    building = building.toUpperCase();
-    sensor = sensor.toUpperCase();
-    const query = 'SELECT [PointSliceID]\n' +
-        '      ,[Alias]\n' +
-        '      ,[in_xref]\n' +
-        `  FROM [WFIC-CEVAC].[dbo].[CEVAC_${building}_${sensor}_PXREF]`;
-    return query;
-}
-
-function generateXrefQuery(building: string, sensor: string) {
-    building = building.toUpperCase();
-    sensor = sensor.toUpperCase();
-
-    const query = 'SELECT [PointSliceID]\n' +
-        '      ,[Room]\n' +
-        '      ,[RoomType]\n' +
-        '      ,[BLG]\n' +
-        '      ,[Floor]\n' +
-        '      ,[ReadingType]\n' +
-        '      ,[Alias]\n' +
-        `  FROM [WFIC-CEVAC].[dbo].[CEVAC_${building}_${sensor}_XREF]`;
-    return query;
 }
 
 function calculateAvgValue(recordList: HistoricalEntry[]) {
@@ -125,46 +83,39 @@ function returnPastData(data: Record<string, number>, hour: number) {
     return res;
 }
 
-router.get("/api/live", (req, res) => {
+router.get("/api/live", async (req, res) => {
     const { building, sensor } = req.query;
 
-    if (typeof building != "string" || typeof sensor != "string") {
+    if (typeof building != "string" || typeof sensor != "string" || !BUILDINGS.includes(building) || !SENSORS.includes(sensor)) {
         res.status(400).json({
             "status": "err",
-            "error_message": "Invalid parameters"
+            "error_message": `Invalid parameters. Must specify a "building" in ${BUILDINGS.join(", ")} and "sensor" in ${SENSORS.join(", ")}.`
         });
     } else {
-        pool.query<LiveEntry>(generateLiveQuery(building, sensor), (err, result) => {
 
-            if (err) {
-                console.log(err);
-                res.status(500).json({
-                    "status": "err",
-                    "error_message": `Database Error: ${err.message}`
-                });
-                return;
-            }
+        try {
+            const result = await pool.query<LiveEntry>`SELECT * FROM [WFIC-CEVAC].[dbo].[CEVAC_${building}_${sensor}_LIVE]`;
 
-            if (!result) {
-                res.status(404).json({
-                    "status": "err",
-                    "error_message": `Could not find any records for ${sensor}/${building}`
-                });
-            } else {
-                const record = result.recordsets[0];
-                res.status(200).json({
-                    "status": "ok",
-                    "data": record
-                })
-            }
-        });
+            const record = result.recordsets[0];
+            res.status(200).json({
+                "status": "ok",
+                "data": record
+            });
+
+        } catch (err) {
+            console.log(err);
+            res.status(500).json({
+                "status": "err",
+                "error_message": `Database Error: ${err.message}`
+            });
+        }
     }
 });
 
-router.get('/api/hist', (req, res) => {
+router.get('/api/hist', async (req, res) => {
     const { building, sensor, id, labels } = req.query;
 
-    if (typeof building != "string" || typeof sensor != "string" || typeof id != "string") {
+    if (typeof building != "string" || typeof sensor != "string" || typeof id != "string" || !BUILDINGS.includes(building) || !SENSORS.includes(sensor)) {
         res.status(400).json({
             "status": "err",
             "error_message": "Invalid parameters"
@@ -185,110 +136,87 @@ router.get('/api/hist', (req, res) => {
             }
 
         };
+        try {
 
-        pool.query<HistoricalEntry>(generateHistoryQuery(building, sensor, id), function (err, result) {
-            if (err) {
-                res.status(500).json({
-                    "status": "err",
-                    "error_message": `Database Error: ${err.message}`
-                });
-                return;
-            }
+            const result = await pool.query<HistoricalEntry>
+                `SELECT TOP (96) \n [ETDateTime] as [Time], [ActualValue] as [Value] FROM [WFIC-CEVAC].[dbo].[CEVAC_${building}_${sensor}_HIST_CACHE] WHERE [PointSliceID] = ${id} ORDER BY [Time] DESC `;
 
-            if (!result) {
-                res.status(404).json({
-                    "status": "err",
-                    "error_message": `Could not find any records for ${sensor}/${building}`
-                });
-            } else {
-                let timesteps = result.recordsets[0];
+            let timesteps = result.recordsets[0];
 
-                // Find the average value for each timestep
-                let average = calculateAvgValue(timesteps);
+            // Find the average value for each timestep
+            let average = calculateAvgValue(timesteps);
 
-                // Rearrange the averages into a summary
-                let summary = returnPastData(average, size);
+            // Rearrange the averages into a summary
+            let summary = returnPastData(average, size);
 
 
-                // record = returnPastData(record, 12);
-                res.status(200).json({
-                    "status": "ok",
-                    "data": summary
-                })
-            }
-        });
+            // record = returnPastData(record, 12);
+            res.status(200).json({
+                "status": "ok",
+                "data": summary
+            })
+
+        } catch (err) {
+            res.status(500).json({
+                "status": "err",
+                "error_message": `Database Error: ${err.message}`
+            });
+        }
+
     }
 });
 
-router.get('/api/XREF', (req, res) => {
+router.get('/api/PXREF', async (req, res) => {
     const { building, sensor } = req.query;
 
-    if (typeof building != "string" || typeof sensor != "string") {
+    if (typeof building != "string" || typeof sensor != "string" || !BUILDINGS.includes(building) || !SENSORS.includes(sensor)) {
         res.status(400).json({
             "status": "err",
-            "error_message": "Invalid parameters"
+            "error_message": `Invalid parameters. Must specify a "building" in ${BUILDINGS.join(", ")} and "sensor" in ${SENSORS.join(", ")}.`
         });
     } else {
+        try {
 
-        pool.query(generateXrefQuery(building, sensor), function (err, result) {
-            if (err) {
-                res.status(500).json({
-                    "status": "err",
-                    "error_message": `Database Error: ${err.message}`
-                });
-                return;
-            }
+            const result = await pool.query`SELECT [PointSliceID], [Alias], [in_xref] FROM [WFIC-CEVAC].[dbo].[CEVAC_${building}_${sensor}_PXREF]`;
 
-            if (!result) {
-                res.status(404).json({
-                    "status": "err",
-                    "error_message": `Could not find any records for ${sensor}/${building}`
-                });
-            } else {
-                let record = result.recordsets[0];
-                res.status(200).json({
-                    "status": "ok",
-                    "data": record
-                })
-            }
-
-
-        });
+            const record = result.recordsets[0];
+            res.status(200).json({
+                "status": "ok",
+                "data": record
+            })
+        } catch (err) {
+            res.status(500).json({
+                "status": "err",
+                "error_message": `Database Error: ${err.message}`
+            });
+        };
     }
 });
 
-router.get('/api/PXREF', (req, res) => {
+
+router.get('/api/XREF', async (req, res) => {
     const { building, sensor } = req.query;
 
-    if (typeof building != "string" || typeof sensor != "string") {
+    if (typeof building != "string" || typeof sensor != "string" || !BUILDINGS.includes(building) || !SENSORS.includes(sensor)) {
         res.status(400).json({
             "status": "err",
-            "error_message": "Invalid parameters"
+            "error_message": `Invalid parameters. Must specify a "building" in ${BUILDINGS.join(", ")} and "sensor" in ${SENSORS.join(", ")}.`
         });
     } else {
+        try {
+            const result = await pool.query`SELECT [PointSliceID], [Room], [RoomType], [BLG], [Floor], [ReadingType], [Alias] FROM [WFIC-CEVAC].[dbo].[CEVAC_${building}_${sensor}_XREF]`;
 
-        pool.query(generatePXrefQuery(building, sensor), function (err, result) {
-            if (err) {
-                res.status(500).json({
-                    "status": "err",
-                    "error_message": `Database Error: ${err.message}`
-                });
-                return;
-            }
-
-            if (!result) {
-                res.status(404).json({
-                    "status": "err",
-                    "error_message": `Could not find any records for ${sensor}/${building}`
-                });
-            } else {
-                let record = result.recordsets[0];
-                res.status(200).json({
-                    "status": "ok",
-                    "data": record
-                })
-            }
-        });
+            const record = result.recordsets[0];
+            res.status(200).json({
+                "status": "ok",
+                "data": record
+            })
+        } catch (err) {
+            res.status(500).json({
+                "status": "err",
+                "error_message": `Database Error: ${err.message}`
+            });
+        };
     }
 });
 
