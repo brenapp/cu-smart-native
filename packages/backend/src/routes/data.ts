@@ -46,6 +46,22 @@ interface LiveEntry {
     ActualValue: number
 }
 
+interface XrefEntry {
+    PointSliceID: number;
+    Room: string;
+    RoomType: string;
+    BLG: string;
+    Floor: string;
+    ReadingType: string;
+    Alias: string;
+}
+
+interface PXrefEntry {
+    PointSliceID: string;
+    Alias: string;
+    in_xref: true;
+}
+
 function calculateAvgValue(recordList: HistoricalEntry[]) {
     let newList: Record<number, number[]> = {};
     recordList.forEach(e => {
@@ -94,7 +110,11 @@ router.get("/api/live", async (req, res) => {
     } else {
 
         try {
-            const result = await pool.query<LiveEntry>`SELECT * FROM [WFIC-CEVAC].[dbo].[CEVAC_${building}_${sensor}_LIVE]`;
+
+            // Safety: While tagged templates are not being used here, because we are validating the
+            // values of building and sensor to a set of known, constant values, it is ok to
+            // directly substitute here
+            const result = await pool.query<LiveEntry>(`SELECT * FROM [WFIC-CEVAC].[dbo].[CEVAC_${building}_${sensor}_LIVE]`);
 
             const record = result.recordsets[0];
             res.status(200).json({
@@ -138,8 +158,11 @@ router.get('/api/hist', async (req, res) => {
         };
         try {
 
-            const result = await pool.query<HistoricalEntry>
-                `SELECT TOP (96) \n [ETDateTime] as [Time], [ActualValue] as [Value] FROM [WFIC-CEVAC].[dbo].[CEVAC_${building}_${sensor}_HIST_CACHE] WHERE [PointSliceID] = ${id} ORDER BY [Time] DESC `;
+            // Safety: While tagged templates are not being used here, because we are validating the
+            // values of building and sensor to a set of known, constant values, it is ok to
+            // directly substitute here
+            const result = await pool.query<HistoricalEntry>(
+                `SELECT TOP (96) [ETDateTime] as [Time], [ActualValue] as [Value] FROM [WFIC-CEVAC].[dbo].[CEVAC_${building}_${sensor}_HIST_CACHE] WHERE [PointSliceID] = ${id} ORDER BY [Time] DESC `);
 
             let timesteps = result.recordsets[0];
 
@@ -177,7 +200,7 @@ router.get('/api/PXREF', async (req, res) => {
     } else {
         try {
 
-            const result = await pool.query`SELECT [PointSliceID], [Alias], [in_xref] FROM [WFIC-CEVAC].[dbo].[CEVAC_${building}_${sensor}_PXREF]`;
+            const result = await pool.query<PXrefEntry>(`SELECT [PointSliceID], [Alias], [in_xref] FROM [WFIC-CEVAC].[dbo].[CEVAC_${building}_${sensor}_PXREF]`);
 
             const record = result.recordsets[0];
             res.status(200).json({
@@ -204,7 +227,7 @@ router.get('/api/XREF', async (req, res) => {
         });
     } else {
         try {
-            const result = await pool.query`SELECT [PointSliceID], [Room], [RoomType], [BLG], [Floor], [ReadingType], [Alias] FROM [WFIC-CEVAC].[dbo].[CEVAC_${building}_${sensor}_XREF]`;
+            const result = await pool.query<XrefEntry>(`SELECT [PointSliceID], [Room], [RoomType], [BLG], [Floor], [ReadingType], [Alias] FROM [WFIC-CEVAC].[dbo].[CEVAC_${building}_${sensor}_XREF]`);
 
             const record = result.recordsets[0];
             res.status(200).json({
