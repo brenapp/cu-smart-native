@@ -172,7 +172,6 @@ router.get('/api/hist', async (req, res) => {
             // Rearrange the averages into a summary
             let summary = returnPastData(average, size);
 
-
             // record = returnPastData(record, 12);
             res.status(200).json({
                 "status": "ok",
