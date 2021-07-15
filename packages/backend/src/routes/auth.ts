@@ -10,12 +10,16 @@ import { Strategy as LocalStrategy } from "passport-local"
 import * as bodyParser from "body-parser"
 import { Router } from "express"
 import { devCredentials } from "../config.json"
+import { idp } from "../config.json";
+
+const cert = idp.cert.join("\n");
 
 passport.use("sso", new SAMLStrategy({
   path: "/auth/callback",
   entryPoint: "https://idp.clemson.edu/idp/profile/SAML2/Redirect/SSO",
   issuer: "CEVAC",
-  cert: "cert"
+  cert,
+  identifierFormat: "urn:oasis:names:tc:SAML:1.1:nameid-format:emailAddress"
 }, (request, profile, done) => {
   console.log("AUTH", profile);
   done(null);
