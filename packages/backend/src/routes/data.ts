@@ -9,11 +9,31 @@ import { Router } from "express"
 import mssql from "mssql"
 
 const BUILDINGS = [
-    "WATT",
-    "COOPER",
     "ASC",
+    "BRACK",
+    "BROOKS",
+    "COB",
+    "COOPER",
+    "DOUTHITA",
+    "FACILITIES",
+    "FIKE",
+    "GODFREY",
+    "GRC",
+    "HARDIN",
+    "HARRIS",
+    "HENDRIX",
+    "HOLMES",
+    "JORDAN",
+    "LEE_III",
+    "LJ",
+    "MANN",
+    "MCFADDEN",
+    "RHODES",
+    "RHODESANNEX",
+    "RIGGS",
+    "SD",
     "SIKES",
-    "FIKE"
+    "WATT",
 ];
 
 const SENSORS = [
