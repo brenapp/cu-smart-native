@@ -15,7 +15,6 @@ const BUILDINGS = [
     "COB",
     "COOPER",
     "DOUTHITA",
-    "FACILITIES",
     "FIKE",
     "GODFREY",
     "GRC",
