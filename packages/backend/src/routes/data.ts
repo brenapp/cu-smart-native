@@ -144,10 +144,25 @@ router.get("/api/live", async (req, res) => {
 
         } catch (err) {
             console.log(err);
-            res.status(500).json({
-                "status": "err",
-                "error_message": `Database Error: ${err.message}`
-            });
+
+            // Special Case: If the database reports the table does not exist, it makes the most
+            // sense to just return an empty array instead of a 500 error. The client will report
+            // this data as unavailable instead of producing an error. This means when these data is
+            // added to the database, it will work seamlessly
+            if (err.message.startsWith("Invalid object name")) {
+                res.status(200).json({
+                    "status": "ok",
+                    "data": []
+                });
+            } else {
+                res.status(500).json({
+                    "status": "err",
+                    "error_message": `Database Error: ${err.message}`
+                });
+            }
+
+
+
         }
     }
 });
