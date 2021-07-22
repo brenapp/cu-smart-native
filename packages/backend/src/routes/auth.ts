@@ -9,17 +9,23 @@ import { Strategy as SAMLStrategy } from "passport-saml"
 import { Strategy as LocalStrategy } from "passport-local"
 import * as bodyParser from "body-parser"
 import { Router } from "express"
-import { devCredentials } from "../config.json"
-import { idp } from "../config.json";
+import { saml, devCredentials } from "../config.json";
 
-const cert = idp.cert.join("\n");
+
 
 passport.use("sso", new SAMLStrategy({
-  path: "/auth/callback",
-  entryPoint: "https://idp.clemson.edu/idp/profile/SAML2/Redirect/SSO",
-  issuer: "CEVAC",
-  cert,
-  identifierFormat: "urn:oasis:names:tc:SAML:1.1:nameid-format:emailAddress"
+  callbackUrl: saml.callbackUrl,
+  entryPoint: saml.entryPoint,
+  issuer: saml.issuer,
+  privateKey: saml.privateKey, //SP private key in .pem format
+  cert: saml.cert, //IdP public key in .pem format
+  decryptionPvk: saml.decryptionPvk, //same as privateKey
+  identifierFormat: 'urn:oasis:names:tc:SAML:2.0:nameid-format:transient', 
+  authnContext: ['urn:oasis:names:tc:SAML:2.0:ac:classes:unspecified'],
+  authnRequestBinding: 'HTTP-REDIRECT',
+  protocol: 'https://',
+  signatureAlgorithm: 'sha256',
+  acceptedClockSkewMs: -1
 }, (request, profile, done) => {
   console.log("AUTH", profile);
   done(null);
@@ -52,7 +58,7 @@ router.post("/auth/dev", passport.authenticate("local", {
 }))
 
 router.post(
-  "/auth/callback",
+  saml.callbackUrl,
   bodyParser.urlencoded({ extended: true }),
   passport.authenticate("sso", { failureRedirect: "/", failureFlash: true }),
   function (req, res) {
