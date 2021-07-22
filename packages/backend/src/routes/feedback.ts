@@ -20,6 +20,10 @@ interface UserFeedback {
         light: FivePointScale; // 1 = much dimmer, 5 = much brighter
         sound: FivePointScale; // 1 = much quieter, 5 = much louder
     };
+
+    // Identifies this feedback to a specific user. The actual person behind this identifier may not
+    // be known, however for the private beta this ID will be managed by us, and will be known.
+    identifier: string;
 }
 
 const schema: JSONSchemaType<UserFeedback> = {
@@ -42,9 +46,10 @@ const schema: JSONSchemaType<UserFeedback> = {
                 sound: { type: "integer", minimum: 1, maximum: 5 }
             },
             required: ["light", "sound", "temperature"]
-        }
+        },
+        identifier: { type: "string" }
     },
-    required: ["overallSatisfaction", "preferences", "sensations"],
+    required: ["overallSatisfaction", "preferences", "sensations", "identifier"],
     additionalProperties: false
 }
 
@@ -52,7 +57,7 @@ const validate = ajv.compile(schema);
 
 const router = Router();
 
-router.post("/feedback", bodyParser.urlencoded({ extended: false }), bodyParser.json(), (req, res) => {
+router.post("/feedback", bodyParser.urlencoded({ extended: false }), bodyParser.json(), async (req, res) => {
 
     // Because this is an automated request (originating from a fetch in the client, redirecting to
     // authentication doesn't make sense, so return an error when the user isn't authenticated, and
