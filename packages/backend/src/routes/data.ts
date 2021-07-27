@@ -7,6 +7,7 @@
 import { mssql as config } from "../config.json"
 import { Router } from "express"
 import mssql from "mssql"
+import { logger } from "../main";
 
 const BUILDINGS = [
     "ASC",
@@ -42,13 +43,26 @@ const SENSORS = [
 
 // Connect to database
 const pool = new mssql.ConnectionPool(config);
-pool.connect(err => {
-    if (err) {
-        console.log("Could not connect to SQL server!")
-    } else {
-        console.log("Connect to SQL server")
+
+function connectionHandler(retries: number) {
+    return (err: any) => {
+        if (err) {
+
+            if (retries < config.retries.max) {
+                logger.error(`Could not connect to cevac database! Retrying (${retries}/${config.retries.max}) in ${config.retries.delayMillis}ms...`);
+            }
+
+            setTimeout(() => {
+                pool.connect(connectionHandler(retries + 1));
+            }, config.retries.delayMillis);
+
+
+        } else {
+            logger.info("Connected to cevac database!");
+        }
     }
-});
+}
+pool.connect(connectionHandler(0));
 
 const router = Router();
 
