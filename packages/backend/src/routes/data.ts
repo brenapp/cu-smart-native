@@ -48,8 +48,8 @@ function connectionHandler(retries: number) {
     return (err: any) => {
         if (err) {
 
-            if (retries < config.retries.max) {
-                logger.error(`Could not connect to cevac database! Retrying (${retries}/${config.retries.max}) in ${config.retries.delayMillis}ms...`);
+            if (retries <= config.retries.max) {
+                logger.error(`Could not connect to cevac database! Retrying (${retries}/${config.retries.max}) in ${config.retries.delayMillis}ms... [${err}]`);
             }
 
             setTimeout(() => {
@@ -62,7 +62,7 @@ function connectionHandler(retries: number) {
         }
     }
 }
-pool.connect(connectionHandler(0));
+pool.connect(connectionHandler(1));
 
 const router = Router();
 
