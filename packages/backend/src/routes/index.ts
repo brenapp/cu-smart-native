@@ -6,13 +6,13 @@ import app from "../main"
 import winston from "winston"
 import expressWinston from "express-winston"
 
-
 // Setup logging 
 app.use(expressWinston.logger({
     transports: [
       new winston.transports.Console()
     ],
     format: winston.format.combine(
+      winston.format.timestamp(),
       winston.format.colorize(),
       winston.format.cli()
     )
@@ -37,6 +37,7 @@ app.use(expressWinston.errorLogger({
       new winston.transports.Console()
     ],
     format: winston.format.combine(
+      winston.format.timestamp(),
       winston.format.colorize(),
       winston.format.cli()
     )
