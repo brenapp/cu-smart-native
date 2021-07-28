@@ -2,20 +2,13 @@ import auth from "./auth"
 import feedback from "./feedback"
 import data from "./data"
 
-import app from "../main"
+import app, { logger } from "../main"
 import winston from "winston"
 import expressWinston from "express-winston"
 
 // Setup logging 
 app.use(expressWinston.logger({
-    transports: [
-      new winston.transports.Console()
-    ],
-    format: winston.format.combine(
-      winston.format.timestamp(),
-      winston.format.colorize(),
-      winston.format.cli()
-    )
+    winstonInstance: logger,
   }));
 
 // Routers
@@ -33,12 +26,5 @@ app.use((req, res) => {
 
 // Error handling 
 app.use(expressWinston.errorLogger({
-    transports: [
-      new winston.transports.Console()
-    ],
-    format: winston.format.combine(
-      winston.format.timestamp(),
-      winston.format.colorize(),
-      winston.format.cli()
-    )
+  winstonInstance: logger,
   }));
