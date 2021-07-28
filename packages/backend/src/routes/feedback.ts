@@ -5,11 +5,13 @@
 import Ajv, { JSONSchemaType } from "ajv"
 import * as bodyParser from "body-parser"
 import { Router } from "express"
+import User from "../database/user";
+import { logger } from "../main";
 
 const ajv = new Ajv()
 
-type FivePointScale = 1 | 2 | 3 | 4 | 5;
-interface UserFeedback {
+export type FivePointScale = 1 | 2 | 3 | 4 | 5;
+export interface UserFeedback {
     overallSatisfaction: FivePointScale; // 1 = very dissatisfied, 5 = very satisfied
     sensations: {
         temperature: FivePointScale; // 1 = cool, 5 = hot
@@ -21,9 +23,8 @@ interface UserFeedback {
         sound: FivePointScale; // 1 = much quieter, 5 = much louder
     };
 
-    // Identifies this feedback to a specific user. The actual person behind this identifier may not
-    // be known, however for the private beta this ID will be managed by us, and will be known.
-    identifier: string;
+    // The point slice id of the room in question.
+    id: number;
 }
 
 const schema: JSONSchemaType<UserFeedback> = {
@@ -47,9 +48,9 @@ const schema: JSONSchemaType<UserFeedback> = {
             },
             required: ["light", "sound", "temperature"]
         },
-        identifier: { type: "string" }
+        id: { type: "integer" }
     },
-    required: ["overallSatisfaction", "preferences", "sensations", "identifier"],
+    required: ["overallSatisfaction", "preferences", "sensations", "id"],
     additionalProperties: false
 }
 
@@ -62,23 +63,37 @@ router.post("/feedback", bodyParser.urlencoded({ extended: false }), bodyParser.
     // Because this is an automated request (originating from a fetch in the client, redirecting to
     // authentication doesn't make sense, so return an error when the user isn't authenticated, and
     // allow the client to authenticate)
-    if (!req.isAuthenticated()) {
-        res.status(401).json({
-            "status": "error",
-            "error_message": "Unauthenticated"
-        });
-    } else {
+    // if (!req.isAuthenticated()) {
+    //     res.status(401).json({
+    //         "status": "error",
+    //         "error_message": "Unauthenticated"
+    //     });
+    // } else {
         // Validate feedback against submission
         const valid = validate(req.body);
 
         if (valid) {
             res.status(200).json({ "status": "ok" });
 
+            // Log feedback into database
+            const user = await User.ensure({
+                username: "bmmcgui",
+                admin: 1
+            });
+
+            logger.info(`Submit feedback for ${user.data.username}: ${JSON.stringify(req.body)}`);
+
+            // Submit feedback
+            user.addFeedback(req.body);
+            
+
+
+
         } else {
             res.status(400).json({ "status": "error", "error_message": "Invalid feedback submission" });
         };
 
-    }
+    // }
 });
 
 
