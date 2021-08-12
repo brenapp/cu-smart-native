@@ -7,8 +7,7 @@
 import React from "react";
 import globalHook, { Store } from "use-global-hook";
 import MMKVStorage from "react-native-mmkv-storage";
-
-
+import Constants from "expo-constants"
 
 
 export type Building = "WATT" | "COOPER" | "ASC" | "SIKES" | "FIKE";
@@ -78,6 +77,9 @@ export interface RequestParameters {
   }
 }
 
+// Use local endpoint if given, otherwise use the real server
+const endpoint = Constants.manifest.extra?.endpoint ?? "http://fmo14.clemson.edu";
+
 async function fetchAPI<T extends keyof ResponseType>(endpoint: T, parameters: RequestParameters[T]): Promise<ResponseType[T]> {
 
   // Serialize arguments
@@ -91,7 +93,7 @@ async function fetchAPI<T extends keyof ResponseType>(endpoint: T, parameters: R
 
   try {
 
-    const response = await fetch(`http://fmo14.clemson.edu/api/${endpoint}?${queryString}`);
+    const response = await fetch(`${endpoint}/${endpoint}?${queryString}`);
 
     const json: APIResponse<ResponseType[T]> = await response.json();
 
