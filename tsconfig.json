@@ -69,8 +69,8 @@
     "skipLibCheck": true,                           /* Skip type checking of declaration files. */
     "forceConsistentCasingInFileNames": true,        /* Disallow inconsistently-cased references to the same file. */
     "paths": {
-        "@cu-smart/backend/*": ["packages/backend/src/*"],
-        "@cu-smart/frontend/*": ["packages/backend/*"],
+        "@cu-smart/backend/*": ["./packages/backend/src/*"],
+        "@cu-smart/frontend/*": ["./packages/backend/*"],
     }
   }
 }
