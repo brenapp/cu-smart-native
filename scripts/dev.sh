@@ -6,6 +6,6 @@ npm run dev &
 
 echo "[frontend] starting expo..."
 cd ../frontend/
-DEV=true expo start ${@:2} &
+DEV=true expo start ${@:1} &
 
 wait
