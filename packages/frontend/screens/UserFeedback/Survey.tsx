@@ -4,7 +4,7 @@ import { Pressable, ScrollView, StyleProp, ViewStyle } from "react-native";
 import { Box, Button, HStack, Icon, Image, Text, VStack } from "native-base";
 import Slider from "@react-native-community/slider";
 import { Ionicons } from "@expo/vector-icons";
-import { FivePointScale } from "../../models/feedback";
+import { FivePointScale } from "@cu-smart/backend/routes/feedback";
 
 const SliderQuestion = ({
   current,

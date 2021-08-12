@@ -11,6 +11,8 @@ import { logger } from "../main";
 const ajv = new Ajv()
 
 export type FivePointScale = 1 | 2 | 3 | 4 | 5;
+export type ActivityType = "Computer" | "Paper";
+
 export interface UserFeedback {
     overallSatisfaction: FivePointScale; // 1 = very dissatisfied, 5 = very satisfied
     sensations: {
@@ -22,8 +24,8 @@ export interface UserFeedback {
         light: FivePointScale; // 1 = much dimmer, 5 = much brighter
         sound: FivePointScale; // 1 = much quieter, 5 = much louder
     };
-
-    // The point slice id of the room in question.
+    clothing: FivePointScale;
+    activityType: ActivityType;
     id: number;
 }
 
@@ -48,9 +50,11 @@ const schema: JSONSchemaType<UserFeedback> = {
             },
             required: ["light", "sound", "temperature"]
         },
+        activityType: { type: "string", enum: ["Computer", "Paper"] },
+        clothing: { type: "integer", minimum: 1, maximum: 5 },
         id: { type: "integer" }
     },
-    required: ["overallSatisfaction", "preferences", "sensations", "id"],
+    required: ["overallSatisfaction", "preferences", "sensations", "clothing", "activityType", "id"],
     additionalProperties: false
 }
 
@@ -69,29 +73,29 @@ router.post("/feedback", bodyParser.urlencoded({ extended: false }), bodyParser.
     //         "error_message": "Unauthenticated"
     //     });
     // } else {
-        // Validate feedback against submission
-        const valid = validate(req.body);
+    // Validate feedback against submission
+    const valid = validate(req.body);
 
-        if (valid) {
-            res.status(200).json({ "status": "ok" });
+    if (valid) {
+        res.status(200).json({ "status": "ok" });
 
-            // Log feedback into database
-            const user = await User.ensure({
-                username: "bmmcgui",
-                admin: 1
-            });
+        // Log feedback into database
+        const user = await User.ensure({
+            username: "bmmcgui",
+            admin: 1
+        });
 
-            logger.info(`Submit feedback for ${user.data.username}: ${JSON.stringify(req.body)}`);
+        logger.info(`Submit feedback for ${user.data.username}: ${JSON.stringify(req.body)}`);
 
-            // Submit feedback
-            user.addFeedback(req.body);
-            
-
+        // Submit feedback
+        user.addFeedback(req.body);
 
 
-        } else {
-            res.status(400).json({ "status": "error", "error_message": "Invalid feedback submission" });
-        };
+
+
+    } else {
+        res.status(400).json({ "status": "error", "error_message": "Invalid feedback submission" });
+    };
 
     // }
 });

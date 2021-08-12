@@ -10,7 +10,7 @@ import theme from "../../theme/theme";
 import useAuthentication from "../../models/authentication";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { ActivityType, UserFeedback } from "../../models/feedback";
+import { UserFeedback } from "@cu-smart/backend/routes/feedback"
 import Survey, { ClothingQuestion, SliderQuestion } from "./Survey";
 
 const FavoriteIcon = () => (
@@ -38,7 +38,7 @@ const Screen = () => {
     preferences: { temperature: 3, light: 3, sound: 3 },
     id: params.id,
     clothing: 2,
-    activityLevel: ActivityType.Computer,
+    activityType: "Paper",
   });
   const [favorite, setFavorite] = useState<boolean>(false);
   const navigation = useNavigation();
