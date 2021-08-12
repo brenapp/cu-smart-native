@@ -1,8 +1,0 @@
-{
-  "expoServerPort": 19000,
-  "devToolsPort": 19002,
-  "packagerPort": 19000,
-  "expoServerNgrokUrl": "https://zr-rmc.anonymous.native.exp.direct",
-  "packagerNgrokUrl": "https://packager.zr-rmc.anonymous.native.exp.direct",
-  "ngrokPid": 22024
-}
