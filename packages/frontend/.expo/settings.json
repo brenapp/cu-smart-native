@@ -1,9 +1,9 @@
 {
-  "hostType": "tunnel",
+  "hostType": "lan",
   "lanType": "ip",
   "dev": true,
   "minify": false,
-  "urlRandomness": "zr-rmc",
+  "urlRandomness": "u2-tec",
   "https": false,
   "scheme": null,
   "devClient": false

@@ -14,7 +14,10 @@
  *
  */
 
-import useGlobalHook from 'use-global-hook';
+import { useNavigation } from '@react-navigation/native';
+import React from 'react';
+import useGlobalHook, { Store } from 'use-global-hook';
+import AuthenticationScreen from '../screens/Authentication/AuthenticationScreen';
 
 // from @types/node-saml
 export interface Profile {
@@ -43,3 +46,69 @@ export interface AuthenticationState {
   // SAML2 profile
   profile?: Profile;
 }
+
+export interface AuthenticationActions {
+  setPartialState: (state: Partial<AuthenticationState>) => void;
+
+  // Sets the users token after a successful login
+  setToken: (token: string) => void;
+
+  logout: () => void;
+}
+
+function setPartialState(
+  store: Store<AuthenticationState, AuthenticationActions>,
+  state: Partial<AuthenticationState>
+) {
+  store.setState({ ...store.state, ...state });
+}
+
+
+function setToken(
+  store: Store<AuthenticationState, AuthenticationActions>,
+  token: string
+) {
+  store.actions.setPartialState({ authenticated: true, token });
+}
+
+function logout(
+  store: Store<AuthenticationState, AuthenticationActions>,
+) {
+  store.actions.setPartialState({ authenticated: false, token: "" });
+}
+
+const actions = {
+  setPartialState,
+  setToken,
+  logout
+};
+
+const initialState: AuthenticationState = {
+  authenticated: true,
+  token: undefined,
+  profile: undefined
+}
+
+const useAuthenticationState = useGlobalHook<AuthenticationState, AuthenticationActions>(
+  React,
+  initialState,
+  actions
+);
+
+
+export default function useAuthentication() {
+  const [data, actions] = useAuthenticationState();
+  const navigation = useNavigation();
+
+  return {
+    ...data,
+
+    authenticate() {
+      navigation.navigate(AuthenticationScreen.name)
+    },
+
+    // Re-export some actions
+    logout: actions.logout,
+    setToken: actions.setToken
+  }
+};

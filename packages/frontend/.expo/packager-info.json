@@ -1,8 +1,10 @@
 {
-  "expoServerPort": 19000,
+  "expoServerPort": null,
   "devToolsPort": 19002,
   "packagerPort": 19000,
-  "expoServerNgrokUrl": "https://zr-rmc.anonymous.native.exp.direct",
-  "packagerNgrokUrl": "https://packager.zr-rmc.anonymous.native.exp.direct",
-  "ngrokPid": 22024
+  "expoServerNgrokUrl": "https://u2-tec.bmmcgui.frontend.exp.direct",
+  "packagerNgrokUrl": "https://packager.u2-tec.bmmcgui.frontend.exp.direct",
+  "ngrokPid": 24396,
+  "packagerPid": null,
+  "webpackServerPort": null
 }

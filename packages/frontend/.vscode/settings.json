@@ -1,3 +1,20 @@
 {
-    "editor.formatOnSave": true
+    "editor.formatOnSave": true,
+    "sqltools.connections": [
+        {
+            "mssqlOptions": {
+                "appName": "SQLTools",
+                "useUTC": true,
+                "encrypt": true
+            },
+            "previewLimit": 50,
+            "server": "wfic-util-sql.campus.cu.clemson.edu",
+            "port": 1433,
+            "driver": "MSSQL",
+            "name": "CEVAC Database",
+            "database": "WFIC-CEVAC",
+            "username": "cevac_admin",
+            "password": "HardnessDepthGallstone$2"
+        }
+    ]
 }
