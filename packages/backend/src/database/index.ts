@@ -17,10 +17,12 @@ import sqlite3 from "sqlite3";
 import * as sqlite from "sqlite";
 import { sqlite as config } from "../config.json";
 import { logger } from "../main";
+import { join } from "path";
+import appRoot from "app-root-path";
 
 export async function database() {
     return sqlite.open({
-        filename: config.path,
+        filename: join(`${appRoot.path}`, config.path),
         driver: sqlite3.cached.Database,
     });
 };
@@ -76,10 +78,6 @@ export async function ensureSchema() {
             created_at DATETIME DEFAULT CURRENT_TIMESTAMP);
     `);
 
-    logger.info("Ensuring database compatibility: COMPLETE!");
-
-    const users = await db.get("SELECT * FROM USERS");
-    logger.info(JSON.stringify(users));
-    
+    logger.info("Ensuring database compatibility: COMPLETE!");   
 
 };
