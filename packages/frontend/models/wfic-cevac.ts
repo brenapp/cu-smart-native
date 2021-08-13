@@ -78,7 +78,7 @@ export interface RequestParameters {
 }
 
 // Use local endpoint if given, otherwise use the real server
-const endpoint = Constants.manifest.extra?.endpoint ?? "http://fmo14.clemson.edu";
+const url = Constants.manifest.extra?.endpoint ?? "http://fmo14.clemson.edu";
 
 async function fetchAPI<T extends keyof ResponseType>(endpoint: T, parameters: RequestParameters[T]): Promise<ResponseType[T]> {
 
@@ -87,13 +87,12 @@ async function fetchAPI<T extends keyof ResponseType>(endpoint: T, parameters: R
   for (const [key, value] of Object.entries(parameters)) {
     args.push(encodeURIComponent(key) + "=" + encodeURIComponent(value))
   };
-
+  
   let queryString = args.join("&");
-
 
   try {
 
-    const response = await fetch(`${endpoint}/${endpoint}?${queryString}`);
+    const response = await fetch(`${url}/${endpoint}?${queryString}`);
 
     const json: APIResponse<ResponseType[T]> = await response.json();
 
