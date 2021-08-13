@@ -1,8 +1,5 @@
 /**
- * Global Data Store
- *
- * This module holds all global state. Note that most state should be local, and should not be
- * stored here. Data that cross component boundaries should be correctly siloed here.
+ * Store for data from the sensor data API.
  */
 import React from "react";
 import globalHook, { Store } from "use-global-hook";
@@ -91,11 +88,10 @@ async function fetchAPI<T extends keyof ResponseType>(endpoint: T, parameters: R
   let queryString = args.join("&");
 
   try {
-
-    const response = await fetch(`${url}/${endpoint}?${queryString}`);
+    
+    const response = await fetch(`${url}/api/${endpoint}?${queryString}`);
 
     const json: APIResponse<ResponseType[T]> = await response.json();
-
 
     if (json.status == "ok") {
       return Promise.resolve(json.data);
