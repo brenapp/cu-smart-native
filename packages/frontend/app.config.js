@@ -30,9 +30,6 @@ export default {
     favicon: './assets/favicon.png',
   },
   extra: {
-    endpoint:
-      process.env.DEV === 'true'
-        ? 'http://localhost:3000'
-        : 'http://fmo14.clemson.edu',
+    endpoint: "http://fmo14.clemson.edu"
   },
 };
