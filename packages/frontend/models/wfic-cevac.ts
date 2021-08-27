@@ -46,6 +46,7 @@ export interface ResponseType {
   }[],
   XREF: {
     PointSliceID: number,
+    Room: string,
     RoomType: string,
     BLG: Building,
     Floor: string,
