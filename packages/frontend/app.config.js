@@ -30,6 +30,6 @@ export default {
     favicon: './assets/favicon.png',
   },
   extra: {
-    endpoint: "http://fmo14.clemson.edu"
+    endpoint: "http://130.127.78.195:3000"
   },
 };
