@@ -29,21 +29,41 @@ import UserFeedbackScreen from "../UserFeedback/UserFeedbackScreen";
 
 const favorites: ResponseType["XREF"] = [
   {
-    PointSliceID: 8390,
-    RoomType: "Room",
+    PointSliceID: 8935,
+    Room: "325",
+    RoomType: "Project Room",
     BLG: "WATT",
-    Floor: "1st Floor",
-    ReadingType: "Sensor",
-    Alias: "RM 101A",
+    Floor: "3rd Floor",
+    ReadingType: "Zone Temp",
+    Alias: "RM 325"
   },
   {
-    PointSliceID: 8390,
-    RoomType: "Room",
-    BLG: "ASC",
-    Floor: "1st Floor",
-    ReadingType: "Sensor",
-    Alias: "RM 109A",
+    PointSliceID: 8941,
+    Room: "321",
+    RoomType: "Project Room",
+    BLG: "WATT",
+    Floor: "3rd Floor",
+    ReadingType: "Zone Temp",
+    Alias: "RM 321"
+    },
+  {
+    PointSliceID: 8916,
+    Room: "331",
+    RoomType: "Classroom",
+    BLG: "WATT",
+    Floor: "3rd Floor",
+    ReadingType: "Zone Temp",
+    Alias: "RM 331"
   },
+  {
+    PointSliceID: 8921,
+    Room: "329",
+    RoomType: "Project Room",
+    BLG: "WATT",
+    Floor: "3rd Floor",
+    ReadingType: "Zone Temp",
+    Alias: "RM 329"
+    }
 ];
 
 const Screen = () => {
@@ -88,11 +108,12 @@ const Screen = () => {
           <Icon as={Ionicons} name="qr-code-outline" />
         </Pressable>
       </View>
-      <Heading size="xl">Welcome Back, Brendan!</Heading>
+      <Heading size="xl">Welcome Back!</Heading>
       <Text>Select a room below to continue</Text>
       <Box marginTop={8}>
         {favorites.map(room => (
           <Pressable
+            key={room.PointSliceID}
             onPress={() =>
               navigation.navigate(UserFeedbackScreen.name, {
                 building: room.BLG,
@@ -121,11 +142,15 @@ const Screen = () => {
           </Pressable>
         ))}
       </Box>
-      <Button
+      <HStack
         style={{ alignSelf: "center", marginTop: 32 }}
-        onPress={() => navigation.navigate(BuildingSelectionScreen.name)}>
-        Other Room
-      </Button>
+        alignItems="center"
+        space={3}>
+        <Button
+          onPress={() => navigation.navigate(BuildingSelectionScreen.name)}>
+          Other Room
+        </Button>
+      </HStack>
     </VStack>
   );
 };
