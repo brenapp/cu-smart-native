@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { Pressable, ScrollView } from "react-native";
 
 import { useNavigation, useRoute } from "@react-navigation/native";
-import { Building, METRICS } from "../../models/wfic-cevac";
+import { Building, METRICS, url } from "../../models/wfic-cevac";
 import { useEffect } from "react";
 import useSensorData, { BUILDINGS } from "../../models/wfic-cevac";
 import {
@@ -86,7 +86,9 @@ const Screen = () => {
     feedback.measured_co2 = CO2?.ActualValue ?? 0;
     feedback.measured_temp = TEMP?.ActualValue ?? 0;
 
-    fetch("http://fmo14.clemson.edu/feedback", {
+    console.log(feedback);
+
+    fetch(`${url}/feedback`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -147,8 +149,8 @@ const Screen = () => {
                 InputLeftElement={<Text ml="16px">ID #</Text>}
                 variant="filled"
                 keyboardType="number-pad"
-                value={"23"}
-                onChange={(...args) => console.log(args.length)}
+                value={feedback.user_id.toString()}
+                onChange={event => setFeedback({ ...feedback, user_id: +event.nativeEvent.text })}
               />
             </VStack>
             {auth.authenticated ? (

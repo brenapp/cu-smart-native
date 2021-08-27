@@ -76,7 +76,7 @@ export interface RequestParameters {
 }
 
 // Use local endpoint if given, otherwise use the real server
-const url = Constants.manifest.extra?.endpoint ?? "http://fmo14.clemson.edu";
+export const url = Constants.manifest.extra?.endpoint ?? "http://fmo14.clemson.edu";
 
 async function fetchAPI<T extends keyof ResponseType>(endpoint: T, parameters: RequestParameters[T]): Promise<ResponseType[T]> {
 
