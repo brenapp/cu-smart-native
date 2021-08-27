@@ -191,45 +191,53 @@ export default class User {
     };
 
 
-    /**
-     * Submit feedback about a particular place.
-     * 
-     * @param
-     **/
-    async addFeedback(feedback: UserFeedback): Promise<boolean> {
-        const db = await database();
-        const result = await db.run(`
-            INSERT INTO feedback 
-                (user_id, 
-                 place_id,
-                 overall_satisfaction,
-                 sensations_temperature,
-                 sensations_air_quality,
-                 preferences_temperature,
-                 preferences_light,
-                 preferences_sound) VALUES (
-                    ?, 
-                    ?, 
-                    ?, 
-                    ?, 
-                    ?, 
-                    ?, 
-                    ?, 
-                    ?)`,
-            this.data.id,
-            feedback.id,
-            feedback.overallSatisfaction,
-            feedback.sensations.temperature,
-            feedback.sensations.airQuality,
-            feedback.preferences.temperature,
-            feedback.preferences.light,
-            feedback.preferences.sound
-        );
 
-        return !!result.changes && result.changes > 0;
-
-    }
 
 
 
 };
+
+/**
+ * Submit feedback about a particular place.
+ * 
+ * @param
+ **/
+    export async function addFeedback(feedback: UserFeedback): Promise<boolean> {
+    const db = await database();
+    const result = await db.run(`
+        INSERT INTO feedback 
+            (user_id, 
+                place_id,
+                overall_satisfaction,
+                sensations_temperature,
+                sensations_air_quality,
+                preferences_temperature,
+                preferences_light,
+                preferences_sound,
+                measured_temp,
+                measured_co2) VALUES (
+                ?, 
+                ?, 
+                ?, 
+                ?, 
+                ?, 
+                ?, 
+                ?, 
+                ?,
+                ?,
+                ?)`,
+        feedback.user_id,
+        feedback.place_id,
+        feedback.overall_satisfaction,
+        feedback.sensations_temperature,
+        feedback.sensations_air_quality,
+        feedback.preferences_temperature,
+        feedback.preferences_light,
+        feedback.preferences_sound,
+        feedback.measured_temp,
+        feedback.measured_co2
+    );
+
+    return !!result.changes && result.changes > 0;
+
+}

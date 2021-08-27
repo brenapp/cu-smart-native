@@ -64,7 +64,9 @@ export async function ensureSchema() {
             sensations_air_quality INTEGER,
             preferences_temperature INTEGER,
             preferences_light INTEGER,
-            preferences_sound INTEGER, 
+            preferences_sound INTEGER,
+            measured_temp REAL,
+            measured_co2 REAL, 
             created_at DATETIME DEFAULT CURRENT_TIMESTAMP);
     `);
 
