@@ -5,12 +5,21 @@ import { useNavigation, useRoute } from "@react-navigation/native";
 import { Building, METRICS } from "../../models/wfic-cevac";
 import { useEffect } from "react";
 import useSensorData, { BUILDINGS } from "../../models/wfic-cevac";
-import { Box, Button, HStack, Icon, Spinner, Text } from "native-base";
+import {
+  Box,
+  Button,
+  HStack,
+  Icon,
+  Input,
+  Spinner,
+  Text,
+  VStack,
+} from "native-base";
 import theme from "../../theme/theme";
 import useAuthentication from "../../models/authentication";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { UserFeedback } from "@cu-smart/backend/routes/feedback"
+import { UserFeedback } from "@cu-smart/backend/routes/feedback";
 import Survey, { ClothingQuestion, SliderQuestion } from "./Survey";
 
 const FavoriteIcon = () => (
@@ -33,12 +42,16 @@ const Screen = () => {
     id: number;
   }>;
   const [feedback, setFeedback] = useState<UserFeedback>({
-    overallSatisfaction: 3,
-    sensations: { temperature: 3, airQuality: 3 },
-    preferences: { temperature: 3, light: 3, sound: 3 },
-    id: params.id,
-    clothing: 2,
-    activityType: "Paper",
+    user_id: 0,
+    place_id: params.id,
+    overall_satisfaction: 3,
+    sensations_temperature: 3,
+    sensations_air_quality: 3,
+    preferences_temperature: 3,
+    preferences_light: 3,
+    preferences_sound: 3,
+    measured_temp: 0,
+    measured_co2: 0,
   });
   const [favorite, setFavorite] = useState<boolean>(false);
   const navigation = useNavigation();
@@ -70,6 +83,9 @@ const Screen = () => {
   }, []);
 
   function submitFeedback() {
+    feedback.measured_co2 = CO2?.ActualValue ?? 0;
+    feedback.measured_temp = TEMP?.ActualValue ?? 0;
+
     fetch("http://fmo14.clemson.edu/feedback", {
       method: "POST",
       headers: {
@@ -126,15 +142,24 @@ const Screen = () => {
         </Box>
         {loaded ? (
           <ScrollView>
+            <VStack style={{ padding: 16 }}>
+              <Input
+                InputLeftElement={<Text ml="16px">ID #</Text>}
+                variant="filled"
+                keyboardType="number-pad"
+                value={"23"}
+                onChange={(...args) => console.log(args.length)}
+              />
+            </VStack>
             {auth.authenticated ? (
               <Survey onSubmit={submitFeedback} style={{ paddingTop: 32 }}>
-                <SliderQuestion
+                {/* <SliderQuestion
                   prompt="Overall, how satisfied are you with your space?"
                   left="sad-outline"
                   right="happy-outline"
-                  current={feedback.overallSatisfaction}
-                  onSelect={overallSatisfaction =>
-                    setFeedback({ ...feedback, overallSatisfaction })
+                  current={feedback.overall_satisfaction}
+                  onSelect={overall_satisfaction =>
+                    setFeedback({ ...feedback, overall_satisfaction })
                   }
                   labels={[
                     "Very Dissatisfied",
@@ -143,29 +168,29 @@ const Screen = () => {
                     "Somewhat Satisfied",
                     "Very Satisfied",
                   ]}
-                />
+                /> */}
                 <SliderQuestion
                   prompt="This space's temperature is..."
                   left="snow-outline"
                   right="flame-outline"
-                  current={feedback.sensations.temperature}
-                  onSelect={temperature =>
+                  current={feedback.sensations_temperature}
+                  onSelect={sensations_temperature =>
                     setFeedback({
                       ...feedback,
-                      sensations: { ...feedback.sensations, temperature },
+                      sensations_temperature,
                     })
                   }
                   labels={["Cold", "Cool", "Neutral", "Warm", "Hot"]}
                 />
-                <SliderQuestion
+                {/* <SliderQuestion
                   prompt="This space's air quality is..."
                   left="cloud-outline"
                   right="leaf-outline"
-                  current={feedback.sensations.airQuality}
-                  onSelect={airQuality =>
+                  current={feedback.sensations_air_quality}
+                  onSelect={sensations_air_quality =>
                     setFeedback({
                       ...feedback,
-                      sensations: { ...feedback.sensations, airQuality },
+                      sensations_air_quality,
                     })
                   }
                   labels={[
@@ -175,16 +200,16 @@ const Screen = () => {
                     "Good",
                     "Very Good",
                   ]}
-                />
+                /> */}
                 <SliderQuestion
                   prompt="I want this space's temperature to be..."
                   left="snow-outline"
                   right="thermometer-outline"
-                  current={feedback.preferences.temperature}
-                  onSelect={temperature =>
+                  current={feedback.preferences_temperature}
+                  onSelect={preferences_temperature =>
                     setFeedback({
                       ...feedback,
-                      preferences: { ...feedback.preferences, temperature },
+                      preferences_temperature,
                     })
                   }
                   labels={[
@@ -195,15 +220,15 @@ const Screen = () => {
                     "Much Warmer",
                   ]}
                 />
-                <SliderQuestion
+                {/* <SliderQuestion
                   prompt="I want this space's light to be..."
                   left="moon-outline"
                   right="sunny-outline"
-                  current={feedback.preferences.light}
-                  onSelect={light =>
+                  current={feedback.preferences_light}
+                  onSelect={preferences_light =>
                     setFeedback({
                       ...feedback,
-                      preferences: { ...feedback.preferences, light },
+                      preferences_light,
                     })
                   }
                   labels={[
@@ -218,11 +243,11 @@ const Screen = () => {
                   prompt="I want this space's sound to be..."
                   left="volume-off-outline"
                   right="volume-high-outline"
-                  current={feedback.preferences.sound}
-                  onSelect={sound =>
+                  current={feedback.preferences_sound}
+                  onSelect={preferences_sound =>
                     setFeedback({
                       ...feedback,
-                      preferences: { ...feedback.preferences, sound },
+                      preferences_sound,
                     })
                   }
                   labels={[
@@ -232,17 +257,7 @@ const Screen = () => {
                     "Louder",
                     "Much Louder",
                   ]}
-                />
-                <Box>
-                  <Text>
-                    Select the image below that is closest to your current
-                    clothing level.
-                  </Text>
-                  <ClothingQuestion
-                    current={feedback.clothing}
-                    onSelect={clothing => {}}
-                  />
-                </Box>
+                /> */}
               </Survey>
             ) : (
               <Button
