@@ -208,17 +208,11 @@ export default class User {
         INSERT INTO feedback 
             (user_id, 
                 place_id,
-                overall_satisfaction,
                 sensations_temperature,
-                sensations_air_quality,
                 preferences_temperature,
-                preferences_light,
-                preferences_sound,
+                clothing_level,
                 measured_temp,
                 measured_co2) VALUES (
-                ?, 
-                ?, 
-                ?, 
                 ?, 
                 ?, 
                 ?, 
@@ -228,12 +222,9 @@ export default class User {
                 ?)`,
         feedback.user_id,
         feedback.place_id,
-        feedback.overall_satisfaction,
         feedback.sensations_temperature,
-        feedback.sensations_air_quality,
         feedback.preferences_temperature,
-        feedback.preferences_light,
-        feedback.preferences_sound,
+        feedback.clothing_level,
         feedback.measured_temp,
         feedback.measured_co2
     );

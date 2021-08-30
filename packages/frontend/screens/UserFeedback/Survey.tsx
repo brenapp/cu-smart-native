@@ -63,19 +63,24 @@ const ClothingQuestion = ({
   const images: { [key: string]: any } = {
     clothing1: require("../../assets/clothing/clothing1.png"),
     clothing2: require("../../assets/clothing/clothing2.png"),
-    clothing3: require("../../assets/clothing/clothing3.png"),
-    clothing4: require("../../assets/clothing/clothing4.png"),
   };
 
   return (
     <VStack alignItems="center" margin={8} space={2}>
-      {[1, 2, 3, 4].map(level => (
-        <Pressable key={level}>
-          <Box bg="primary.200">
-            <Image source={images[`clothing${level}`]} alt={`${level}`} />
-          </Box>
-        </Pressable>
-      ))}
+      <Text>What is closest to your current clothing level?</Text>
+      {[1, 2].map(level => {
+
+        const selected = current === level;
+        const color = selected ? "#F56600" : "#ffffff";
+
+        return (
+          <Pressable key={level} onPress={() => onSelect(level as FivePointScale)}>
+            <Box bg="primary.200" border={`4px solid ${color}`}>
+              <Image source={images[`clothing${level}`]} alt={`${level}`} />
+            </Box>
+          </Pressable>
+        );
+      })}
     </VStack>
   );
 };

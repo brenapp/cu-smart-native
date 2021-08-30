@@ -44,12 +44,9 @@ const Screen = () => {
   const [feedback, setFeedback] = useState<UserFeedback>({
     user_id: 0,
     place_id: params.id,
-    overall_satisfaction: 3,
     sensations_temperature: 3,
-    sensations_air_quality: 3,
     preferences_temperature: 3,
-    preferences_light: 3,
-    preferences_sound: 3,
+    clothing_level: 1,
     measured_temp: 0,
     measured_co2: 0,
   });
@@ -260,6 +257,7 @@ const Screen = () => {
                     "Much Louder",
                   ]}
                 /> */}
+                <ClothingQuestion current={feedback.clothing_level} onSelect={level => setFeedback({ ...feedback, clothing_level: level })}/>
               </Survey>
             ) : (
               <Button

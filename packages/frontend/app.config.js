@@ -30,6 +30,6 @@ export default {
     favicon: './assets/favicon.png',
   },
   extra: {
-    endpoint: "http://130.127.78.195:3000"
+    endpoint: "http://198.21.196.214:3000"
   },
 };

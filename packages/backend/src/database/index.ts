@@ -59,12 +59,9 @@ export async function ensureSchema() {
         `CREATE TABLE IF NOT EXISTS feedback (
             user_id INTEGER, 
             place_id INTEGER,
-            overall_satisfaction INTEGER,
             sensations_temperature INTEGER,
-            sensations_air_quality INTEGER,
             preferences_temperature INTEGER,
-            preferences_light INTEGER,
-            preferences_sound INTEGER,
+            clothing_level INTEGER,
             measured_temp REAL,
             measured_co2 REAL, 
             created_at DATETIME DEFAULT CURRENT_TIMESTAMP);
