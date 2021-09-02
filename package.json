@@ -2,7 +2,8 @@
   "name": "cu-smart",
   "private": true,
   "scripts": {
-    "dev": "sh ./scripts/dev.sh"
+    "dev": "sh ./scripts/dev.sh",
+    "dev:backend": "cd ./packages/backend && npm run dev"
   },
   "devDependencies": {
     "lerna": "^4.0.0"
