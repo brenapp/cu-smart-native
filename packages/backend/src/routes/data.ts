@@ -4,9 +4,9 @@
  * 
  */
 
-import { mssql as config } from "../config.json"
+import { mssql as cevac, shades } from "../config.json"
 import { Router } from "express"
-import mssql from "mssql"
+import mssql, { ConnectionPool } from "mssql"
 import { logger } from "../main";
 
 const BUILDINGS = [
@@ -41,28 +41,36 @@ const SENSORS = [
     "CO2"
 ];
 
-// Connect to database
-const pool = new mssql.ConnectionPool(config);
+// Use mobile sensors for the following point slice IDs
+const mobileSensors = {
 
-function connectionHandler(retries: number) {
+};
+
+
+// Connect to each database appropriately
+const thermostatData = new mssql.ConnectionPool(cevac);
+const mobileSensorData = new mssql.ConnectionPool(shades);
+
+function connectionHandler(retries: number, pool: ConnectionPool, database: any) {
     return (err: any) => {
         if (err) {
 
-            if (retries <= config.retries.max) {
-                logger.error(`Could not connect to cevac database! Retrying (${retries}/${config.retries.max}) in ${config.retries.delayMillis}ms... [${err}]`);
+            if (retries <= cevac.retries.max) {
+                logger.error(`Could not connect to ${database.database} database! Retrying (${retries}/${database.retries.max}) in ${database.retries.delayMillis}ms... [${err}]`);
             }
 
             setTimeout(() => {
-                pool.connect(connectionHandler(retries + 1));
-            }, config.retries.delayMillis);
+                pool.connect(connectionHandler(retries + 1, pool, database));
+            }, database.retries.delayMillis);
 
 
         } else {
-            logger.info("Connected to cevac database!");
+            logger.info(`Connected to ${database.database} database!`);
         }
     }
 }
-pool.connect(connectionHandler(1));
+thermostatData.connect(connectionHandler(1, thermostatData, cevac));
+mobileSensorData.connect(connectionHandler(1, mobileSensorData, shades));
 
 const router = Router();
 
@@ -147,7 +155,7 @@ router.get("/api/live", async (req, res) => {
             // Safety: While tagged templates are not being used here, because we are validating the
             // values of building and sensor to a set of known, constant values, it is ok to
             // directly substitute here
-            const result = await pool.query<LiveEntry>(`SELECT * FROM [WFIC-CEVAC].[dbo].[CEVAC_${building}_${sensor}_LIVE]`);
+            const result = await thermostatData.query<LiveEntry>(`SELECT * FROM [WFIC-CEVAC].[dbo].[CEVAC_${building}_${sensor}_LIVE]`);
 
             const record = result.recordsets[0];
             res.status(200).json({
@@ -158,11 +166,12 @@ router.get("/api/live", async (req, res) => {
         } catch (err) {
             console.log(err);
 
+        
             // Special Case: If the database reports the table does not exist, it makes the most
             // sense to just return an empty array instead of a 500 error. The client will report
             // this data as unavailable instead of producing an error. This means when these data is
             // added to the database, it will work seamlessly
-            if (err.message.startsWith("Invalid object name")) {
+            if (err instanceof Error && err.message.startsWith("Invalid object name")) {
                 res.status(200).json({
                     "status": "ok",
                     "data": []
@@ -170,7 +179,7 @@ router.get("/api/live", async (req, res) => {
             } else {
                 res.status(500).json({
                     "status": "err",
-                    "error_message": `Database Error: ${err.message}`
+                    "error_message": `Database Error: ${err instanceof Error ? err.message : "Unknown Error"}`
                 });
             }
 
@@ -209,7 +218,7 @@ router.get('/api/hist', async (req, res) => {
             // Safety: While tagged templates are not being used here, because we are validating the
             // values of building and sensor to a set of known, constant values, it is ok to
             // directly substitute here
-            const result = await pool.query<HistoricalEntry>(
+            const result = await thermostatData.query<HistoricalEntry>(
                 `SELECT TOP (96) [ETDateTime] as [Time], [ActualValue] as [Value] FROM [WFIC-CEVAC].[dbo].[CEVAC_${building}_${sensor}_HIST_CACHE] WHERE [PointSliceID] = ${id} ORDER BY [Time] DESC `);
 
             let timesteps = result.recordsets[0];
@@ -229,7 +238,7 @@ router.get('/api/hist', async (req, res) => {
         } catch (err) {
             res.status(500).json({
                 "status": "err",
-                "error_message": `Database Error: ${err.message}`
+                "error_message": `Database Error: ${err instanceof Error ? err.message : "Unknown Error"}`
             });
         }
 
@@ -247,7 +256,7 @@ router.get('/api/PXREF', async (req, res) => {
     } else {
         try {
 
-            const result = await pool.query<PXrefEntry>(`SELECT [PointSliceID], [Alias], [in_xref] FROM [WFIC-CEVAC].[dbo].[CEVAC_${building}_${sensor}_PXREF]`);
+            const result = await thermostatData.query<PXrefEntry>(`SELECT [PointSliceID], [Alias], [in_xref] FROM [WFIC-CEVAC].[dbo].[CEVAC_${building}_${sensor}_PXREF]`);
 
             const record = result.recordsets[0];
             res.status(200).json({
@@ -257,7 +266,7 @@ router.get('/api/PXREF', async (req, res) => {
         } catch (err) {
             res.status(500).json({
                 "status": "err",
-                "error_message": `Database Error: ${err.message}`
+                "error_message": `Database Error: ${err instanceof Error ? err.message : "Unknown Error"}`
             });
         };
     }
@@ -274,7 +283,7 @@ router.get('/api/XREF', async (req, res) => {
         });
     } else {
         try {
-            const result = await pool.query<XrefEntry>(`SELECT [PointSliceID], [Room], [RoomType], [BLG], [Floor], [ReadingType], [Alias] FROM [WFIC-CEVAC].[dbo].[CEVAC_${building}_${sensor}_XREF]`);
+            const result = await thermostatData.query<XrefEntry>(`SELECT [PointSliceID], [Room], [RoomType], [BLG], [Floor], [ReadingType], [Alias] FROM [WFIC-CEVAC].[dbo].[CEVAC_${building}_${sensor}_XREF]`);
 
             const record = result.recordsets[0];
             res.status(200).json({
@@ -284,7 +293,7 @@ router.get('/api/XREF', async (req, res) => {
         } catch (err) {
             res.status(500).json({
                 "status": "err",
-                "error_message": `Database Error: ${err.message}`
+                "error_message": `Database Error: ${err instanceof Error ? err.message : "Unknown Error"}`
             });
         };
     }
