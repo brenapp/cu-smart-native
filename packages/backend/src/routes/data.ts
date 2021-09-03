@@ -87,11 +87,19 @@ const mobileSensors = new Map<number, string>([
     [8941, "Sensor17"],
 ]);
 
+const boxTempData = new Map<number, number>([
+    [8916, 0],
+    [8921, 0],
+    [8939, 0],
+    [8941, 0],
+]);
+
+
 // Connect to each database appropriately
 const thermostatData = new mssql.ConnectionPool(cevac);
 const mobileSensorData = new mssql.ConnectionPool(shades);
 
-function connectionHandler(retries: number, pool: ConnectionPool, database: any) {
+function connectionHandler(retries: number, pool: ConnectionPool, database: any, after?: () => void) {
     return (err: any) => {
         if (err) {
 
@@ -106,11 +114,42 @@ function connectionHandler(retries: number, pool: ConnectionPool, database: any)
 
         } else {
             logger.info(`Connected to ${database.database} database!`);
+            after && after();
         }
     }
 }
+
+interface MobileSensoryEntry {
+    DateTime: Date;
+    Sensor: string;
+    Metric: string;
+    Reading: number;
+};
+
 thermostatData.connect(connectionHandler(1, thermostatData, cevac));
-mobileSensorData.connect(connectionHandler(1, mobileSensorData, shades));
+mobileSensorData.connect(connectionHandler(1, mobileSensorData, shades, async () => {
+    (async function updateSensorData() {
+        logger.info("Updating live sensors...");
+
+        for (const [id, sensor] of mobileSensors) {
+
+            const query = `SELECT TOP 1 * FROM [WFIC_CEVAC_Shades].[dbo].[SensorData]
+                                WHERE (Metric='Temp(F)')
+                                AND (Sensor='${sensor}')
+                                AND (DateTime > DATEADD(HOUR, -1, GETDATE()))
+                                ORDER BY [DATETIME] DESC`;
+            
+            const data = await mobileSensorData.query<MobileSensoryEntry>(query);
+
+            if (data.recordset.length > 0) {
+                boxTempData.set(id, data.recordset[0].Reading);
+            }
+
+        }
+
+        setTimeout(updateSensorData, 1000 * 60);
+    })();
+}));
 
 const router = Router();
 
@@ -120,7 +159,7 @@ interface HistoricalEntry {
 }
 
 interface LiveEntry {
-    PointSliceID: number,
+    PointSliceID: string,
     Alias: string,
     UTCDateTime: string,
     ETDateTime: string,
@@ -199,32 +238,35 @@ router.get("/api/live", async (req, res) => {
 
             const record = result.recordsets[0];
 
+            let data = [...record];
+
             // Artificially insert RM 319 in WATT TEMP
             if (sensor == "TEMP" && building == "WATT") {
                 record.push({
-                    "PointSliceID": 8939,
+                    "PointSliceID": "8939",
                     "Alias": "RM 319",
-                    "UTCDateTime": "",
-                    "ETDateTime": "",
+                    "UTCDateTime": new Date().toISOString(),
+                    "ETDateTime": new Date().toISOString(),
                     "ActualValue": 0
                 });
+
+                // Insert box data if it exists
+                data = [...record].map(room => {
+                    if (boxTempData.has(+room.PointSliceID)) {
+                        console.log(room);
+                        room.ActualValue = boxTempData.get(+room.PointSliceID) as number;
+                    }
+
+                    return room;
+                });
+
             };
 
 
-            console.log(record);
-            // Swap in mobile sensor data for the applicable point slice IDs
-            for (const item of record) {
-                if (mobileSensors.has(+item.PointSliceID)) {
-                    const sensor = mobileSensors.get(+item.PointSliceID) as string;
-
-                    console.log(`Replacing ${item.PointSliceID} with ${sensor}`);
-
-                }
-            };
 
             res.status(200).json({
                 "status": "ok",
-                "data": record
+                data
             });
 
         } catch (err) {
