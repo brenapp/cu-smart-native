@@ -68,19 +68,22 @@ const ClothingQuestion = ({
   return (
     <VStack alignItems="center" margin={8} space={2}>
       <Text>What is closest to your current clothing level?</Text>
+      <HStack space={2}>
       {[1, 2].map(level => {
-
         const selected = current === level;
         const color = selected ? "#F56600" : "#ffffff";
 
         return (
-          <Pressable key={level} onPress={() => onSelect(level as FivePointScale)}>
-            <Box bg="primary.200" border={`4px solid ${color}`}>
-              <Image source={images[`clothing${level}`]} alt={`${level}`} />
-            </Box>
+          <Pressable
+            key={level}
+            onPress={() => onSelect(level as FivePointScale)}>
+              <Box border={`4px solid ${color}`} borderRadius={8} padding={2}>
+                <Image source={images[`clothing${level}`]} alt={`${level}`} size="lg"/>
+              </Box>
           </Pressable>
         );
       })}
+      </HStack>
     </VStack>
   );
 };
