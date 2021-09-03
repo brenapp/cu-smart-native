@@ -9,43 +9,83 @@ import { Router } from "express"
 import mssql, { ConnectionPool } from "mssql"
 import { logger } from "../main";
 
-const BUILDINGS = [
+export type Building =
+    "ASC" |
+    // "BRACK" |
+    // "BROOKS" |
+    // "COB" |
+    "COOPER" |
+    // "DOUTHITA" |
+    "FIKE" |
+    // "GODFREY" |
+    // "GRC" |
+    // "HARDIN" |
+    // "HARRIS" |
+    // "HENDRIX" |
+    // "HOLMES" |
+    // "JORDAN" |
+    // "LEE_III" |
+    // "LJ" |
+    // "MANN" |
+    // "MCFADDEN" |
+    // "RHODES" |
+    // "RHODESANNEX" |
+    // "RIGGS" |
+    // "SD" |
+    "SIKES" |
+    "WATT";
+
+export const BUILDING_NAMES: { [building in Building]?: string } = {
+    WATT: "Watt Innovation Center",
+    COOPER: "Cooper Library",
+    ASC: "Academic Success Center",
+    SIKES: "Sikes Hall",
+    FIKE: "Fike Recreation Center",
+};
+
+const BUILDINGS: Building[] = [
     "ASC",
-    "BRACK",
-    "BROOKS",
-    "COB",
+    // "BRACK",
+    // "BROOKS",
+    // "COB",
     "COOPER",
-    "DOUTHITA",
+    // "DOUTHITA",
     "FIKE",
-    "GODFREY",
-    "GRC",
-    "HARDIN",
-    "HARRIS",
-    "HENDRIX",
-    "HOLMES",
-    "JORDAN",
-    "LEE_III",
-    "LJ",
-    "MANN",
-    "MCFADDEN",
-    "RHODES",
-    "RHODESANNEX",
-    "RIGGS",
-    "SD",
+    // "GODFREY",
+    // "GRC",
+    // "HARDIN",
+    // "HARRIS",
+    // "HENDRIX",
+    // "HOLMES",
+    // "JORDAN",
+    // "LEE_III",
+    // "LJ",
+    // "MANN",
+    // "MCFADDEN",
+    // "RHODES",
+    // "RHODESANNEX",
+    // "RIGGS",
+    // "SD",
     "SIKES",
     "WATT",
 ];
 
-const SENSORS = [
+export type Metric = 
+    "TEMP" | 
+    "CO2";
+
+export const SENSORS = [
     "TEMP",
     "CO2"
 ];
 
-// Use mobile sensors for the following point slice IDs
-const mobileSensors = {
-
-};
-
+// Use the following mobile sensors for the given point slice IDs
+const mobileSensors = new Map<number, string>([
+    [8916, "Sensor14"],
+    [8921, "Sensor15"],
+    [8939, "Sensor16"],
+    [8941, "Sensor17"],
+]);
 
 // Connect to each database appropriately
 const thermostatData = new mssql.ConnectionPool(cevac);
@@ -80,7 +120,7 @@ interface HistoricalEntry {
 }
 
 interface LiveEntry {
-    PointSliceID: string,
+    PointSliceID: number,
     Alias: string,
     UTCDateTime: string,
     ETDateTime: string,
@@ -143,7 +183,7 @@ function returnPastData(data: Record<string, number>, hour: number) {
 router.get("/api/live", async (req, res) => {
     const { building, sensor } = req.query;
 
-    if (typeof building != "string" || typeof sensor != "string" || !BUILDINGS.includes(building) || !SENSORS.includes(sensor)) {
+    if (typeof building != "string" || typeof sensor != "string" || !BUILDINGS.includes(building as Building) || !SENSORS.includes(sensor)) {
         res.status(400).json({
             "status": "err",
             "error_message": `Invalid parameters. Must specify a "building" in ${BUILDINGS.join(", ")} and "sensor" in ${SENSORS.join(", ")}.`
@@ -158,6 +198,30 @@ router.get("/api/live", async (req, res) => {
             const result = await thermostatData.query<LiveEntry>(`SELECT * FROM [WFIC-CEVAC].[dbo].[CEVAC_${building}_${sensor}_LIVE]`);
 
             const record = result.recordsets[0];
+
+            // Artificially insert RM 319 in WATT TEMP
+            if (sensor == "TEMP" && building == "WATT") {
+                record.push({
+                    "PointSliceID": 8939,
+                    "Alias": "RM 319",
+                    "UTCDateTime": "",
+                    "ETDateTime": "",
+                    "ActualValue": 0
+                });
+            };
+
+
+            console.log(record);
+            // Swap in mobile sensor data for the applicable point slice IDs
+            for (const item of record) {
+                if (mobileSensors.has(+item.PointSliceID)) {
+                    const sensor = mobileSensors.get(+item.PointSliceID) as string;
+
+                    console.log(`Replacing ${item.PointSliceID} with ${sensor}`);
+
+                }
+            };
+
             res.status(200).json({
                 "status": "ok",
                 "data": record
@@ -166,7 +230,6 @@ router.get("/api/live", async (req, res) => {
         } catch (err) {
             console.log(err);
 
-        
             // Special Case: If the database reports the table does not exist, it makes the most
             // sense to just return an empty array instead of a 500 error. The client will report
             // this data as unavailable instead of producing an error. This means when these data is
@@ -192,7 +255,7 @@ router.get("/api/live", async (req, res) => {
 router.get('/api/hist', async (req, res) => {
     const { building, sensor, id, labels } = req.query;
 
-    if (typeof building != "string" || typeof sensor != "string" || typeof id != "string" || !BUILDINGS.includes(building) || !SENSORS.includes(sensor)) {
+    if (typeof building != "string" || typeof sensor != "string" || typeof id != "string" || !BUILDINGS.includes(building as Building) || !SENSORS.includes(sensor)) {
         res.status(400).json({
             "status": "err",
             "error_message": "Invalid parameters"
@@ -248,7 +311,7 @@ router.get('/api/hist', async (req, res) => {
 router.get('/api/PXREF', async (req, res) => {
     const { building, sensor } = req.query;
 
-    if (typeof building != "string" || typeof sensor != "string" || !BUILDINGS.includes(building) || !SENSORS.includes(sensor)) {
+    if (typeof building != "string" || typeof sensor != "string" || !BUILDINGS.includes(building as Building) || !SENSORS.includes(sensor)) {
         res.status(400).json({
             "status": "err",
             "error_message": `Invalid parameters. Must specify a "building" in ${BUILDINGS.join(", ")} and "sensor" in ${SENSORS.join(", ")}.`
@@ -276,7 +339,7 @@ router.get('/api/PXREF', async (req, res) => {
 router.get('/api/XREF', async (req, res) => {
     const { building, sensor } = req.query;
 
-    if (typeof building != "string" || typeof sensor != "string" || !BUILDINGS.includes(building) || !SENSORS.includes(sensor)) {
+    if (typeof building != "string" || typeof sensor != "string" || !BUILDINGS.includes(building as Building) || !SENSORS.includes(sensor)) {
         res.status(400).json({
             "status": "err",
             "error_message": `Invalid parameters. Must specify a "building" in ${BUILDINGS.join(", ")} and "sensor" in ${SENSORS.join(", ")}.`
@@ -285,7 +348,22 @@ router.get('/api/XREF', async (req, res) => {
         try {
             const result = await thermostatData.query<XrefEntry>(`SELECT [PointSliceID], [Room], [RoomType], [BLG], [Floor], [ReadingType], [Alias] FROM [WFIC-CEVAC].[dbo].[CEVAC_${building}_${sensor}_XREF]`);
 
-            const record = result.recordsets[0];
+            const record = result.recordsets[0].map(r => ({...r, "BLG": r.BLG.toUpperCase()}));
+
+            // In WATT TEMP, artificially add RM 319 to the list of rooms
+            if (building == "WATT" && sensor == "TEMP") {   
+                record.push({
+                    "PointSliceID": 8939,
+                    "Room": "319",
+                    "RoomType": "Project Room",
+                    "BLG": "WATT",
+                    "Floor": "3rd Floor",
+                    "ReadingType": "Zone Temp",
+                    "Alias": "RM 319 / Zone Temp"
+                });
+            };
+
+
             res.status(200).json({
                 "status": "ok",
                 "data": record
