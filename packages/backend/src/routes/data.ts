@@ -70,8 +70,8 @@ const BUILDINGS: Building[] = [
     "WATT",
 ];
 
-export type Metric = 
-    "TEMP" | 
+export type Metric =
+    "TEMP" |
     "CO2";
 
 export const SENSORS = [
@@ -138,7 +138,7 @@ mobileSensorData.connect(connectionHandler(1, mobileSensorData, shades, async ()
                                 AND (Sensor='${sensor}')
                                 AND (DateTime > DATEADD(HOUR, -1, GETDATE()))
                                 ORDER BY [DATETIME] DESC`;
-            
+
             const data = await mobileSensorData.query<MobileSensoryEntry>(query);
 
             if (data.recordset.length > 0) {
@@ -253,7 +253,6 @@ router.get("/api/live", async (req, res) => {
                 // Insert box data if it exists
                 data = [...record].map(room => {
                     if (boxTempData.has(+room.PointSliceID)) {
-                        console.log(room);
                         room.ActualValue = boxTempData.get(+room.PointSliceID) as number;
                     }
 
@@ -261,8 +260,6 @@ router.get("/api/live", async (req, res) => {
                 });
 
             };
-
-
 
             res.status(200).json({
                 "status": "ok",
@@ -287,9 +284,6 @@ router.get("/api/live", async (req, res) => {
                     "error_message": `Database Error: ${err instanceof Error ? err.message : "Unknown Error"}`
                 });
             }
-
-
-
         }
     }
 });
@@ -390,10 +384,10 @@ router.get('/api/XREF', async (req, res) => {
         try {
             const result = await thermostatData.query<XrefEntry>(`SELECT [PointSliceID], [Room], [RoomType], [BLG], [Floor], [ReadingType], [Alias] FROM [WFIC-CEVAC].[dbo].[CEVAC_${building}_${sensor}_XREF]`);
 
-            const record = result.recordsets[0].map(r => ({...r, "BLG": r.BLG.toUpperCase()}));
+            const record = result.recordsets[0].map(r => ({ ...r, "BLG": r.BLG.toUpperCase() }));
 
             // In WATT TEMP, artificially add RM 319 to the list of rooms
-            if (building == "WATT" && sensor == "TEMP") {   
+            if (building == "WATT" && sensor == "TEMP") {
                 record.push({
                     "PointSliceID": 8939,
                     "Room": "319",
