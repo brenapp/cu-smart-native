@@ -28,6 +28,11 @@ export default {
   },
   web: {
     favicon: './assets/favicon.png',
+    name: "CU Smart",
+    shortName: "CU Smart",
+    lang: "en-US",
+    scope: "http://fmo14.clemson.edu",
+
   },
   extra: {
     endpoint: "http://fmo14.clemson.edu"

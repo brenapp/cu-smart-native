@@ -5,11 +5,15 @@ import data from "./data"
 import app, { logger } from "../main"
 import winston from "winston"
 import expressWinston from "express-winston"
+import express from "express"
 
 // Setup logging 
 app.use(expressWinston.logger({
     winstonInstance: logger,
   }));
+
+// Static files
+app.use(express.static("www"))
 
 // Routers
 app.use(auth);
