@@ -13,7 +13,7 @@ app.use(expressWinston.logger({
   }));
 
 // Static files
-app.use(express.static("www"))
+app.use(express.static("/app/packages/backend/www"))
 
 // Routers
 app.use(auth);
