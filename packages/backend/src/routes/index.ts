@@ -6,6 +6,7 @@ import app, { logger } from "../main"
 import winston from "winston"
 import expressWinston from "express-winston"
 import express from "express"
+import { join } from "path"
 
 // Setup logging 
 app.use(expressWinston.logger({
@@ -13,7 +14,9 @@ app.use(expressWinston.logger({
   }));
 
 // Static files
-app.use(express.static("/app/packages/backend/www"))
+app.use(express.static(
+    join(__dirname, "../../www")
+));
 
 // Routers
 app.use(auth);
