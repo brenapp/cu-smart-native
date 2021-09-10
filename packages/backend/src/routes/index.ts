@@ -16,7 +16,7 @@ app.use(expressWinston.logger({
 
 // Static files
 app.use(express.static(
-    join(__dirname, "../../www")
+    join(__dirname, "../../../frontend/web-build")
 ));
 
 // Routers
