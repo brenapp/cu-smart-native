@@ -47,8 +47,8 @@ const Screen = () => {
     sensations_temperature: 3,
     preferences_temperature: 3,
     clothing_level: 1,
-    measured_temp: 0,
-    measured_co2: 0,
+    indoor_temp: 0,
+    indoor_humidity: 0,
   });
   const [favorite, setFavorite] = useState<boolean>(false);
   const navigation = useNavigation();
@@ -61,11 +61,11 @@ const Screen = () => {
 
   const TEMP =
     live.TEMP.loaded && live.TEMP.data
-      ? live.TEMP.data.find(r => r.Alias.startsWith(params.room))
+      ? live.TEMP.data.find(r => r.PointSliceID == params.id)
       : undefined;
-  const CO2 =
-    live.CO2.loaded && live.CO2.data
-      ? live.CO2.data.find(r => r.Alias.startsWith(params.room))
+  const HUMIDITY =
+    live.HUMIDITY.loaded && live.HUMIDITY.data
+      ? live.HUMIDITY.data.find(r => r.PointSliceID == params.id)
       : undefined;
 
   // Load all metrics, with a maximum age of 5min
@@ -80,8 +80,8 @@ const Screen = () => {
   }, []);
 
   function submitFeedback() {
-    feedback.measured_co2 = CO2?.ActualValue ?? 0;
-    feedback.measured_temp = TEMP?.ActualValue ?? 0;
+    feedback.indoor_humidity = HUMIDITY?.ActualValue ?? 0;
+    feedback.indoor_temp = TEMP?.ActualValue ?? 0;
 
     console.log(feedback);
 
@@ -134,8 +134,8 @@ const Screen = () => {
               value={TEMP ? `${TEMP.ActualValue.toFixed(1)} °F` : "Unavailable"}
             />
             <SensorIcon
-              icon="molecule-co2"
-              value={CO2 ? `${CO2.ActualValue.toFixed(0)} ppm` : "Unavailable"}
+              icon="weather-rainy"
+              value={HUMIDITY ? `${HUMIDITY.ActualValue.toFixed(0)}` : "Unavailable"}
             />
           </HStack>
         </Box>

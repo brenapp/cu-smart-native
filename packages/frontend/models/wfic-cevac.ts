@@ -16,8 +16,8 @@ export const BUILDINGS: Record<Building, string> = {
   FIKE: "Fike Recreation Center",
 };
 
-export type Metric = "TEMP" | "CO2";
-export const METRICS: Metric[] = ["TEMP", "CO2"];
+export type Metric = "TEMP" | "HUMIDITY";
+export const METRICS: Metric[] = ["TEMP", "HUMIDITY"];
 
 export type APIResponse<T> = {
   status: "ok",
@@ -398,7 +398,7 @@ const initialState: GlobalState = {
         loading: false,
         error: undefined,
       },
-      CO2: {
+      HUMIDITY: {
         loaded: false,
         loading: false,
         error: undefined,
@@ -410,7 +410,7 @@ const initialState: GlobalState = {
         loading: false,
         error: undefined,
       },
-      CO2: {
+      HUMIDITY: {
         loaded: false,
         loading: false,
         error: undefined,
@@ -422,7 +422,7 @@ const initialState: GlobalState = {
         loading: false,
         error: undefined,
       },
-      CO2: {
+      HUMIDITY: {
         loaded: false,
         loading: false,
         error: undefined,
@@ -434,7 +434,7 @@ const initialState: GlobalState = {
         loading: false,
         error: undefined,
       },
-      CO2: {
+      HUMIDITY: {
         loaded: false,
         loading: false,
         error: undefined,
@@ -446,7 +446,7 @@ const initialState: GlobalState = {
         loading: false,
         error: undefined,
       },
-      CO2: {
+      HUMIDITY: {
         loaded: false,
         loading: false,
         error: undefined,
@@ -458,7 +458,7 @@ const initialState: GlobalState = {
       TEMP: {
 
       },
-      CO2: {
+      HUMIDITY: {
 
       },
     },
@@ -466,7 +466,7 @@ const initialState: GlobalState = {
       TEMP: {
 
       },
-      CO2: {
+      HUMIDITY: {
 
       },
     },
@@ -474,7 +474,7 @@ const initialState: GlobalState = {
       TEMP: {
 
       },
-      CO2: {
+      HUMIDITY: {
 
       },
     },
@@ -482,7 +482,7 @@ const initialState: GlobalState = {
       TEMP: {
 
       },
-      CO2: {
+      HUMIDITY: {
 
       },
     },
@@ -490,7 +490,7 @@ const initialState: GlobalState = {
       TEMP: {
 
       },
-      CO2: {
+      HUMIDITY: {
 
       },
     },
@@ -502,7 +502,7 @@ const initialState: GlobalState = {
         loading: false,
         error: undefined,
       },
-      CO2: {
+      HUMIDITY: {
         loaded: false,
         loading: false,
         error: undefined,
@@ -514,7 +514,7 @@ const initialState: GlobalState = {
         loading: false,
         error: undefined,
       },
-      CO2: {
+      HUMIDITY: {
         loaded: false,
         loading: false,
         error: undefined,
@@ -526,7 +526,7 @@ const initialState: GlobalState = {
         loading: false,
         error: undefined,
       },
-      CO2: {
+      HUMIDITY: {
         loaded: false,
         loading: false,
         error: undefined,
@@ -538,7 +538,7 @@ const initialState: GlobalState = {
         loading: false,
         error: undefined,
       },
-      CO2: {
+      HUMIDITY: {
         loaded: false,
         loading: false,
         error: undefined,
@@ -550,7 +550,7 @@ const initialState: GlobalState = {
         loading: false,
         error: undefined,
       },
-      CO2: {
+      HUMIDITY: {
         loaded: false,
         loading: false,
         error: undefined,
@@ -564,7 +564,7 @@ const initialState: GlobalState = {
         loading: false,
         error: undefined,
       },
-      CO2: {
+      HUMIDITY: {
         loaded: false,
         loading: false,
         error: undefined,
@@ -576,7 +576,7 @@ const initialState: GlobalState = {
         loading: false,
         error: undefined,
       },
-      CO2: {
+      HUMIDITY: {
         loaded: false,
         loading: false,
         error: undefined,
@@ -588,7 +588,7 @@ const initialState: GlobalState = {
         loading: false,
         error: undefined,
       },
-      CO2: {
+      HUMIDITY: {
         loaded: false,
         loading: false,
         error: undefined,
@@ -600,7 +600,7 @@ const initialState: GlobalState = {
         loading: false,
         error: undefined,
       },
-      CO2: {
+      HUMIDITY: {
         loaded: false,
         loading: false,
         error: undefined,
@@ -612,7 +612,7 @@ const initialState: GlobalState = {
         loading: false,
         error: undefined,
       },
-      CO2: {
+      HUMIDITY: {
         loaded: false,
         loading: false,
         error: undefined,

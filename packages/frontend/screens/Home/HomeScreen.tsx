@@ -74,7 +74,7 @@ const Screen = () => {
 
   // Load stored data
   useEffect(() => {
-    actions.hydrate();
+    // actions.hydrate();
   }, []);
 
   return (
