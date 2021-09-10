@@ -29,7 +29,7 @@ import UserFeedbackScreen from "../UserFeedback/UserFeedbackScreen";
 
 const favorites: ResponseType["XREF"] = [
   {
-    PointSliceID: 8919,
+    PointSliceID: 8939,
     Room: "325",
     RoomType: "Project Room",
     BLG: "WATT",
