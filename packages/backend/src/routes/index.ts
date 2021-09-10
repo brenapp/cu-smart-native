@@ -1,6 +1,7 @@
 import auth from "./auth"
 import feedback from "./feedback"
 import data from "./data"
+import takeout from "./takeout"
 
 import app, { logger } from "../main"
 import winston from "winston"
@@ -22,6 +23,7 @@ app.use(express.static(
 app.use(auth);
 app.use(feedback);
 app.use(data);
+app.use(takeout);
 
 // Default handlers
 app.use((req, res) => {
