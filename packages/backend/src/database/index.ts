@@ -62,8 +62,8 @@ export async function ensureSchema() {
             sensations_temperature INTEGER,
             preferences_temperature INTEGER,
             clothing_level INTEGER,
-            measured_temp REAL,
-            measured_co2 REAL, 
+            indoor_temp REAL,
+            indoor_humidity REAL,
             created_at DATETIME DEFAULT CURRENT_TIMESTAMP);
     `);
 

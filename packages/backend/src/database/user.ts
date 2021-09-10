@@ -190,11 +190,6 @@ export default class User {
         return !!result.changes && result.changes > 0;
     };
 
-
-
-
-
-
 };
 
 /**
@@ -211,8 +206,8 @@ export default class User {
                 sensations_temperature,
                 preferences_temperature,
                 clothing_level,
-                measured_temp,
-                measured_co2) VALUES (
+                indoor_temp,
+                indoor_humidity) VALUES (
                 ?, 
                 ?, 
                 ?, 
@@ -225,8 +220,8 @@ export default class User {
         feedback.sensations_temperature,
         feedback.preferences_temperature,
         feedback.clothing_level,
-        feedback.measured_temp,
-        feedback.measured_co2
+        feedback.indoor_temp,
+        feedback.indoor_humidity
     );
 
     return !!result.changes && result.changes > 0;

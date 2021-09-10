@@ -72,11 +72,13 @@ const BUILDINGS: Building[] = [
 
 export type Metric =
     "TEMP" |
-    "CO2";
+    "CO2"  | 
+    "HUMIDITY";
 
 export const SENSORS = [
     "TEMP",
-    "CO2"
+    "CO2",
+    "HUMIDITY"
 ];
 
 // Use the following mobile sensors for the given point slice IDs
@@ -87,11 +89,16 @@ const mobileSensors = new Map<number, string>([
     [8941, "Sensor17"],
 ]);
 
-const boxTempData = new Map<number, number>([
-    [8916, 0],
-    [8921, 0],
-    [8939, 0],
-    [8941, 0],
+interface BoxData {
+    temp: number;
+    humidity: number;
+};
+
+const boxData = new Map<number, BoxData>([
+    [8916, { temp: 0, humidity: 0 }],
+    [8921, { temp: 0, humidity: 0 }],
+    [8939, { temp: 0, humidity: 0 }],
+    [8941, { temp: 0, humidity: 0 }],
 ]);
 
 
@@ -133,16 +140,27 @@ mobileSensorData.connect(connectionHandler(1, mobileSensorData, shades, async ()
 
         for (const [id, sensor] of mobileSensors) {
 
-            const query = `SELECT TOP 1 * FROM [WFIC_CEVAC_Shades].[dbo].[SensorData]
+            const tempQuery = `SELECT TOP 1 * FROM [WFIC_CEVAC_Shades].[dbo].[SensorData]
                                 WHERE (Metric='Temp(F)')
                                 AND (Sensor='${sensor}')
                                 AND (DateTime > DATEADD(HOUR, -1, GETDATE()))
                                 ORDER BY [DATETIME] DESC`;
 
-            const data = await mobileSensorData.query<MobileSensoryEntry>(query);
+            const humidityQuery = `SELECT TOP 1 * FROM [WFIC_CEVAC_Shades].[dbo].[SensorData]
+                                WHERE (Metric='Humidity')
+                                AND (Sensor='${sensor}')
+                                AND (DateTime > DATEADD(HOUR, -1, GETDATE()))
+                                ORDER BY [DATETIME] DESC`;
 
-            if (data.recordset.length > 0) {
-                boxTempData.set(id, data.recordset[0].Reading);
+
+            const tempData = await mobileSensorData.query<MobileSensoryEntry>(tempQuery);
+            const humidityData = await mobileSensorData.query<MobileSensoryEntry>(tempQuery);
+
+            if (tempData.recordset.length > 0) {
+                boxData.set(id, {
+                    temp: tempData.recordset[0].Reading,
+                    humidity: humidityData.recordset[0].Reading,
+                });
             }
 
         }
@@ -229,6 +247,31 @@ router.get("/api/live", async (req, res) => {
         });
     } else {
 
+        // Shim humidity data for WATT - It is not present in the default sensor database
+        if (sensor == "HUMIDITY") {
+
+            let data: LiveEntry[] = [];
+
+            if (building == "WATT") {
+                for (const [id, box] of boxData) {
+                    data.push({
+                        PointSliceID: id.toString(),
+                        Alias: mobileSensors.get(id) || "",
+                        UTCDateTime: new Date().toISOString(),
+                        ETDateTime: new Date().toISOString(),
+                        ActualValue: box.humidity
+                    });
+                }
+            };
+
+            res.status(200).json({
+                "status": "ok",
+                data
+            });
+
+            return;
+        };
+
         try {
 
             // Safety: While tagged templates are not being used here, because we are validating the
@@ -237,7 +280,6 @@ router.get("/api/live", async (req, res) => {
             const result = await thermostatData.query<LiveEntry>(`SELECT * FROM [WFIC-CEVAC].[dbo].[CEVAC_${building}_${sensor}_LIVE]`);
 
             const record = result.recordsets[0];
-
             let data = [...record];
 
             // Artificially insert RM 319 in WATT TEMP
@@ -252,8 +294,8 @@ router.get("/api/live", async (req, res) => {
 
                 // Insert box data if it exists
                 data = [...record].map(room => {
-                    if (boxTempData.has(+room.PointSliceID)) {
-                        room.ActualValue = boxTempData.get(+room.PointSliceID) as number;
+                    if (boxData.has(+room.PointSliceID)) {
+                        room.ActualValue = boxData.get(+room.PointSliceID)?.temp as number;
                     }
 
                     return room;

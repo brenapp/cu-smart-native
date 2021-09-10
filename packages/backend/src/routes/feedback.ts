@@ -23,13 +23,13 @@ export interface UserFeedback {
     // preferences_light: FivePointScale,
     // preferences_sound: FivePointScale,
     clothing_level: FivePointScale,
-    measured_temp: number,
-    measured_co2: number,
+    indoor_temp: number,
+    indoor_humidity: number,
 }
 
 const schema: JSONSchemaType<UserFeedback> = {
     type: "object",
-    properties: {
+    properties: {    
         user_id: { type: "number" },
         place_id: { type: "number" },
         // overall_satisfaction: { type: "number" },
@@ -39,8 +39,8 @@ const schema: JSONSchemaType<UserFeedback> = {
         // preferences_light: { type: "number" },
         // preferences_sound: { type: "number" },
         clothing_level: { type: "number" },
-        measured_temp: { type: "number" },
-        measured_co2: { type: "number" },
+        indoor_temp: { type: "number" },
+        indoor_humidity: { type: "number" },
     },
     required: [
         "user_id",
@@ -52,8 +52,8 @@ const schema: JSONSchemaType<UserFeedback> = {
         // "preferences_light",
         // "preferences_sound",
         "clothing_level",
-        "measured_temp",
-        "measured_co2"
+        "indoor_temp",
+        "indoor_humidity"
     ],
     additionalProperties: false
 }
