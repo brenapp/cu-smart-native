@@ -237,6 +237,12 @@ function returnPastData(data: Record<string, number>, hour: number) {
     return res;
 }
 
+router.use((req, res, next) => {
+    res.header("Access-Control-Allow-Origin", "*")
+    res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept")
+    next()
+});
+
 router.get("/api/live", async (req, res) => {
     const { building, sensor } = req.query;
 
@@ -454,6 +460,7 @@ router.get('/api/XREF', async (req, res) => {
         };
     }
 });
+
 
 
 export default router;
