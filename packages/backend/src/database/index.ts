@@ -64,6 +64,8 @@ export async function ensureSchema() {
             clothing_level INTEGER,
             indoor_temp REAL,
             indoor_humidity REAL,
+            outdoor_temp REAL,
+            outdoor_humidity REAL,
             created_at DATETIME DEFAULT CURRENT_TIMESTAMP);
     `);
 

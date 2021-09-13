@@ -4,6 +4,7 @@
 
 import { database } from "./index"
 import { FivePointScale, UserFeedback } from "../routes/feedback";
+import { getTemperature, getRelativeHumidity } from "./outside";
 
 export interface UserData {
     id: number;
@@ -199,6 +200,10 @@ export default class User {
  **/
     export async function addFeedback(feedback: UserFeedback): Promise<boolean> {
     const db = await database();
+
+    const outdoorTemp = await getTemperature();
+    const outdoorHumidity = await getRelativeHumidity();
+
     const result = await db.run(`
         INSERT INTO feedback 
             (user_id, 
@@ -207,9 +212,13 @@ export default class User {
                 preferences_temperature,
                 clothing_level,
                 indoor_temp,
-                indoor_humidity) VALUES (
+                indoor_humidity,
+                outdoor_temp,
+                outdoor_humidity) VALUES (
                 ?, 
                 ?, 
+                ?,
+                ?,
                 ?, 
                 ?, 
                 ?,
@@ -221,7 +230,9 @@ export default class User {
         feedback.preferences_temperature,
         feedback.clothing_level,
         feedback.indoor_temp,
-        feedback.indoor_humidity
+        feedback.indoor_humidity,
+        outdoorTemp,
+        outdoorHumidity
     );
 
     return !!result.changes && result.changes > 0;
