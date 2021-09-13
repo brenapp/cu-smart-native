@@ -154,7 +154,7 @@ mobileSensorData.connect(connectionHandler(1, mobileSensorData, shades, async ()
 
 
             const tempData = await mobileSensorData.query<MobileSensoryEntry>(tempQuery);
-            const humidityData = await mobileSensorData.query<MobileSensoryEntry>(tempQuery);
+            const humidityData = await mobileSensorData.query<MobileSensoryEntry>(humidityQuery);
 
             if (tempData.recordset.length > 0) {
                 boxData.set(id, {
