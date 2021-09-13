@@ -8,6 +8,7 @@ import { Router } from "express"
 import User, { addFeedback } from "../database/user";
 import { logger } from "../main";
 
+
 const ajv = new Ajv()
 
 export type FivePointScale = 1 | 2 | 3 | 4 | 5;
@@ -16,12 +17,8 @@ export type ActivityType = "Computer" | "Paper";
 export interface UserFeedback {
     user_id: number,
     place_id: number,
-    // overall_satisfaction: FivePointScale,
     sensations_temperature: FivePointScale,
-    // sensations_air_quality: FivePointScale,
     preferences_temperature: FivePointScale,
-    // preferences_light: FivePointScale,
-    // preferences_sound: FivePointScale,
     clothing_level: FivePointScale,
     indoor_temp: number,
     indoor_humidity: number,
@@ -32,12 +29,8 @@ const schema: JSONSchemaType<UserFeedback> = {
     properties: {    
         user_id: { type: "number" },
         place_id: { type: "number" },
-        // overall_satisfaction: { type: "number" },
         sensations_temperature: { type: "number" },
-        // sensations_air_quality: { type: "number" },
         preferences_temperature: { type: "number" },
-        // preferences_light: { type: "number" },
-        // preferences_sound: { type: "number" },
         clothing_level: { type: "number" },
         indoor_temp: { type: "number" },
         indoor_humidity: { type: "number" },
@@ -45,15 +38,11 @@ const schema: JSONSchemaType<UserFeedback> = {
     required: [
         "user_id",
         "place_id",
-        // "overall_satisfaction",
         "sensations_temperature",
-        // "sensations_air_quality",
         "preferences_temperature",
-        // "preferences_light",
-        // "preferences_sound",
         "clothing_level",
         "indoor_temp",
-        "indoor_humidity"
+        "indoor_humidity",
     ],
     additionalProperties: false
 }
