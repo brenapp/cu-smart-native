@@ -29,5 +29,9 @@ router.get("/takeout.csv", async (req, res) => {
 
 });
 
+router.get("/takeout.sqlite", async (req, res) => {
+    const db = await database();
+    res.status(200).sendFile(db.config.filename);
+});
 
 export default router;
