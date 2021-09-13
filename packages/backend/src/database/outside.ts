@@ -5,6 +5,7 @@
  */
 
 import { logger } from "../main";
+import fetch from "node-fetch"
 
 export interface Observation {
     id: string;
