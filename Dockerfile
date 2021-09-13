@@ -13,7 +13,6 @@ RUN apk del .build-deps
 RUN npm --prefix ./packages/backend run build
 RUN npm --prefix ./packages/frontend run build:prod
 
-COPY . .
 
 EXPOSE 3000
 
