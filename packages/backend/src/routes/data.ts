@@ -85,8 +85,8 @@ export const SENSORS = [
 const mobileSensors = new Map<number, string>([
     [8916, "Sensor14"],
     [8921, "Sensor15"],
-    [8939, "Sensor16"],
-    [8941, "Sensor17"],
+    [8935, "Sensor16"],
+    [8939, "Sensor17"],
 ]);
 
 interface BoxData {
@@ -97,8 +97,8 @@ interface BoxData {
 const boxData = new Map<number, BoxData>([
     [8916, { temp: 0, humidity: 0 }],
     [8921, { temp: 0, humidity: 0 }],
+    [8935, { temp: 0, humidity: 0 }],
     [8939, { temp: 0, humidity: 0 }],
-    [8941, { temp: 0, humidity: 0 }],
 ]);
 
 
@@ -288,11 +288,11 @@ router.get("/api/live", async (req, res) => {
             const record = result.recordsets[0];
             let data = [...record];
 
-            // Artificially insert RM 319 in WATT TEMP
+            // Artificially insert RM 327 in WATT TEMP
             if (sensor == "TEMP" && building == "WATT") {
                 record.push({
                     "PointSliceID": "8939",
-                    "Alias": "RM 319",
+                    "Alias": "RM 327",
                     "UTCDateTime": new Date().toISOString(),
                     "ETDateTime": new Date().toISOString(),
                     "ActualValue": 0

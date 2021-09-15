@@ -29,23 +29,23 @@ import UserFeedbackScreen from "../UserFeedback/UserFeedbackScreen";
 
 const favorites: ResponseType["XREF"] = [
   {
-    PointSliceID: 8939,
+    PointSliceID: 8935,
     Room: "325",
     RoomType: "Project Room",
     BLG: "WATT",
     Floor: "3rd Floor",
     ReadingType: "Zone Temp",
-    Alias: "RM 319"
+    Alias: "RM 325",
   },
   {
-    PointSliceID: 8941,
-    Room: "321",
+    PointSliceID: 8939,
+    Room: "327",
     RoomType: "Project Room",
     BLG: "WATT",
     Floor: "3rd Floor",
     ReadingType: "Zone Temp",
-    Alias: "RM 321"
-    },
+    Alias: "RM 327",
+  },
   {
     PointSliceID: 8916,
     Room: "331",
@@ -53,7 +53,7 @@ const favorites: ResponseType["XREF"] = [
     BLG: "WATT",
     Floor: "3rd Floor",
     ReadingType: "Zone Temp",
-    Alias: "RM 331"
+    Alias: "RM 331",
   },
   {
     PointSliceID: 8921,
@@ -62,8 +62,8 @@ const favorites: ResponseType["XREF"] = [
     BLG: "WATT",
     Floor: "3rd Floor",
     ReadingType: "Zone Temp",
-    Alias: "RM 329"
-    }
+    Alias: "RM 329",
+  },
 ];
 
 const Screen = () => {
@@ -71,11 +71,6 @@ const Screen = () => {
   const [, actions] = useSensorData();
   const { colorMode, toggleColorMode } = useColorMode();
   const theme = useTheme();
-
-  // Load stored data
-  useEffect(() => {
-    // actions.hydrate();
-  }, []);
 
   return (
     <VStack
@@ -86,29 +81,7 @@ const Screen = () => {
       _dark={{
         backgroundColor: "#1a1a1a",
       }}>
-      <View
-        style={{
-          display: "flex",
-          flexDirection: "row",
-          justifyContent: "space-between",
-          paddingBottom: 32,
-        }}>
-        <Pressable onPress={() => toggleColorMode()}>
-          <Image
-            size={10}
-            alt="User Icon"
-            style={{ borderRadius: 100 }}
-            source={{
-              uri: "https://avatars.githubusercontent.com/u/8839926?v=4",
-            }}
-          />
-        </Pressable>
-        <Pressable
-          onPress={() => navigation.navigate(QRCodeScannerScreen.name)}>
-          <Icon as={Ionicons} name="qr-code-outline" />
-        </Pressable>
-      </View>
-      <Heading size="xl">Welcome Back!</Heading>
+      <Heading size="xl" style={{ paddingTop: 48 }}>Welcome Back!</Heading>
       <Text>Select a room below to continue</Text>
       <Box marginTop={8}>
         {favorites.map(room => (
