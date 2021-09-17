@@ -10,10 +10,18 @@ RUN apk add --no-cache --virtual .build-deps alpine-sdk python2 unixodbc-dev
 RUN npx lerna bootstrap
 RUN apk del .build-deps
 
-RUN npm --prefix ./packages/backend run build
-RUN npm --prefix ./packages/frontend run build:prod
+WORKDIR /app/packages/backend
+RUN npm run build
 
+WORKDIR /app/packages/frontend
+RUN npm run build:prod
 
 EXPOSE 3000
 
-CMD npm --prefix ./packages/backend run run
+WORKDIR /app
+COPY . .
+
+ARG PROD=true
+
+WORKDIR /app/packages/backend
+CMD npm run run
