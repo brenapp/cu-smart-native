@@ -22,7 +22,8 @@ import appRoot from "app-root-path";
 
 export async function database() {
     return sqlite.open({
-        filename: join(`${appRoot.path}`, config.path),
+        mode: sqlite3.OPEN_READWRITE | sqlite3.OPEN_CREATE,
+        filename: process.env.PROD ? "/data/cu-smart.db" : join(`${appRoot.path}`, config.path),
         driver: sqlite3.cached.Database,
     });
 };
