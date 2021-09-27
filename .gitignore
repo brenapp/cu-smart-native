@@ -1,3 +1,4 @@
 lerna-debug.log
 .vscode
 packages/backend/www
+node_modules
