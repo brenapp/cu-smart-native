@@ -21,9 +21,11 @@ import { join } from "path";
 import appRoot from "app-root-path";
 
 export async function database() {
+    const dbPath = process.env.DEV ? join(`${appRoot.path}`, config.path) : "/data/cu-smart.db";
+    logger.info(`Opening cached database ${dbPath}...`);
     return sqlite.open({
         mode: sqlite3.OPEN_READWRITE | sqlite3.OPEN_CREATE,
-        filename: process.env.DEV ? join(`${appRoot.path}`, config.path) : "/data/cu-smart.db",
+        filename: dbPath,
         driver: sqlite3.cached.Database,
     });
 };
